@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using System.Diagnostics;
+using SQLite;
 using TimeTracker.Maui.Models;
 
 namespace TimeTracker.Maui.Services;
@@ -7,7 +8,7 @@ public class SQLiteDataService
 {
     private SQLiteConnection _conn;
     private readonly string _dbPath;
-    private int _result = 0;
+    // TODO Eventually create a logger class that will handle logging full exceptions as well as holding status messages for display
     public string StatusMessage;
 
     public SQLiteDataService(string dbPath)
@@ -72,5 +73,37 @@ public class SQLiteDataService
                 TimeRecordID = 5, RecordTitle = "Test5", StartTime = "05/24/2023 12:00:00PM", StopTime = "05/25/2023 03:00:00PM", TimeElapsed = "03:00", WorkItemTitle = "TestWI", ClientName = "Empower", LogID = "B1006512"
             },
         };
+    }
+    
+    public TimeRecord GetTimeRecord(int recordId)
+    {
+        try
+        {
+            Init();
+            return _conn.Table<TimeRecord>().FirstOrDefault(x => x.TimeRecordID == recordId);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"Failed to retrieve Time Record. Inner exception: \n{e.Message} \n{e.InnerException}");
+            StatusMessage = "Failed to retrieve Time Record";
+        }
+
+        return null;
+    }
+
+    public int DeleteRecord(int recordId)
+    {
+        try
+        {
+            Init();
+            return _conn.Table<TimeRecord>().Delete(x => x.TimeRecordID == recordId);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"Failed to delete record. Inner exception: \n{e.Message} \n{e.InnerException}");
+            StatusMessage = "Failed to delete record";
+        }
+
+        return 0;
     }
 }
