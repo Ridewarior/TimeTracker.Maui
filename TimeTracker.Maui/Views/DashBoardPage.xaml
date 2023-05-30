@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:model="clr-namespace:TimeTracker.Maui.Models"
@@ -7,7 +7,7 @@
              x:DataType="viewmodel:DashBoardViewModel"
              Title="{Binding PageTitle}">
     
-    <Grid Padding="5" RowDefinitions="*, auto">
+    <Grid Padding="5" RowDefinitions="*, *">
         <RefreshView Grid.Row="0"
                      Command="{Binding GetTimeRecordsCommand}"
                      IsRefreshing="{Binding IsRefreshing}">
@@ -33,6 +33,9 @@
         </RefreshView>
         
         <Button Grid.Row="1"
-                Text="Start Timer" />
+                Padding="5"
+                Text="Start Timer"
+                IsEnabled="{Binding IsLoaded}"
+                Command="{Binding CreateRecordCommand}"/>
     </Grid>
 </ContentPage>

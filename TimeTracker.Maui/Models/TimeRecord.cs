@@ -14,7 +14,6 @@ public class TimeRecord
     /// <summary>
     /// Title of the Time Record
     /// </summary>
-    [NotNull]
     public string RecordTitle { get; set; }
 
     /// <summary>

@@ -8,5 +8,36 @@
              x:DataType="viewmodel:DetailsPageViewModel"
              Title="Insert title binding here">
     
-    
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="10">
+            <Entry Placeholder="Record Title" />
+            <Label Text="Total Time" />
+            <Frame BorderColor="Gray" CornerRadius="5" Padding="8" HeightRequest="60">
+                <StackLayout>
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                        <Label Text="Start" />
+                        <TimePicker />
+                        <DatePicker />
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                        <Label Text="Stop" />
+                        <TimePicker />
+                        <DatePicker />
+                    </HorizontalStackLayout>
+                </StackLayout>
+            </Frame>
+            <Grid RowDefinitions="auto, auto, auto" ColumnDefinitions="auto, auto" RowSpacing="15" ColumnSpacing="15">
+                <Label Text="Work Item" Grid.Row="0" Grid.Column="0" />
+                <Entry Placeholder="WI#999" Grid.Row="0" Grid.Column="1" />
+                <Label Text="Client" Grid.Row="1" Grid.Column="0" />
+                <Entry Placeholder="Empower" Grid.Row="1" Grid.Column="1" />
+                <Label Text="Bucket ID" Grid.Row="2" Grid.Column="0" />
+                <Entry Placeholder="B1005612" Grid.Row="2" Grid.Column="1" />
+            </Grid>
+            <HorizontalStackLayout VerticalOptions="EndAndExpand" HorizontalOptions="Center" Spacing="100" HeightRequest="55">
+                <Button x:Name="BtnStart" Text="Start" WidthRequest="250" />
+                <Button x:Name="BtnStop" Text="Stop" WidthRequest="250"/>
+            </HorizontalStackLayout>
+        </StackLayout>
+    </ScrollView>
 </ContentPage>

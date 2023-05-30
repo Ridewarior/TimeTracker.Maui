@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TimeTracker.Maui.Models;
@@ -13,13 +14,13 @@ public partial class DashBoardViewModel : BaseViewModel
     public ObservableCollection<TimeRecord> TimeRecords { get; private set; } = new();
 
     [ObservableProperty]
+    private int _recordId;
+    
+    [ObservableProperty]
     private string _recordTitle;
 
     [ObservableProperty]
     private string _timeElapsed;
-
-    [ObservableProperty]
-    private int _recordId;
 
     public DashBoardViewModel()
     {
@@ -64,13 +65,20 @@ public partial class DashBoardViewModel : BaseViewModel
             IsRefreshing = false;
         }
     }
-
+    
     [RelayCommand]
     public async Task CreateRecord()
     {
-        // When adding a new record we'll have to invoke the dataservice to actually create the record first.
-        // We'll set up our NotNull fields to have proper values and use that fresh Id to move to the details page.
-        throw new NotImplementedException();
+        var currentTime = DateTime.Now;
+        var record = new TimeRecord
+        {
+            StartTime = currentTime.ToString(CultureInfo.InvariantCulture),
+            StopTime = currentTime.ToString(CultureInfo.InvariantCulture)
+        };
+
+        var newRecordId = App.DataService.AddRecord(record);
+
+        await GoToRecordDetails(newRecordId);
     }
 
     [RelayCommand]

@@ -4,7 +4,7 @@ using TimeTracker.Maui.Models;
 
 namespace TimeTracker.Maui.ViewModels;
 
-
+[QueryProperty(nameof(RecordId), nameof(RecordId))]
 public partial class DetailsPageViewModel : BaseViewModel, IQueryAttributable
 {
     [ObservableProperty]
