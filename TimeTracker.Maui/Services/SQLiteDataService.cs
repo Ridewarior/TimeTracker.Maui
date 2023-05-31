@@ -46,32 +46,8 @@ public class SQLiteDataService
             Debug.WriteLine($"Failed to retrieve Time Records. Inner Exception: \n{e.Message} \n{e.InnerException}");
             StatusMessage = "Failed to retrieve Time Records";
         }
-        return new List<TimeRecord>();
 
-        //Mock Data
-        // return new List<TimeRecord>()
-        // {
-        //     new TimeRecord
-        //     {
-        //         TimeRecordID = 1, RecordTitle = "Test1", StartTime = "05/20/2023 12:00:00PM", StopTime = "05/20/2023 03:00:00PM", TimeElapsed = "03:00", WorkItemTitle = "TestWI", ClientName = "Empower", LogID = "B1006512"
-        //     },
-        //     new TimeRecord
-        //     {
-        //         TimeRecordID = 2, RecordTitle = "Test2", StartTime = "05/21/2023 12:00:00PM", StopTime = "05/21/2023 03:00:00PM", TimeElapsed = "03:00", WorkItemTitle = "TestWI", ClientName = "Empower", LogID = "B1006512"
-        //     },
-        //     new TimeRecord
-        //     {
-        //         TimeRecordID = 3, RecordTitle = "Test3", StartTime = "05/22/2023 12:00:00PM", StopTime = "05/22/2023 03:00:00PM", TimeElapsed = "03:00", WorkItemTitle = "TestWI", ClientName = "Empower", LogID = "B1006512"
-        //     },
-        //     new TimeRecord
-        //     {
-        //         TimeRecordID = 4, RecordTitle = "Test4", StartTime = "05/23/2023 12:00:00PM", StopTime = "05/23/2023 03:00:00PM", TimeElapsed = "03:00", WorkItemTitle = "TestWI", ClientName = "Empower", LogID = "B1006512"
-        //     },
-        //     new TimeRecord
-        //     {
-        //         TimeRecordID = 5, RecordTitle = "Test5", StartTime = "05/24/2023 12:00:00PM", StopTime = "05/25/2023 03:00:00PM", TimeElapsed = "03:00", WorkItemTitle = "TestWI", ClientName = "Empower", LogID = "B1006512"
-        //     },
-        // };
+        return new List<TimeRecord>();
     }
     
     /// <summary>

@@ -16,6 +16,7 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:TimeRecord">
                         <Grid Padding="10">
+                            <Label Text="Formatted date of the entries goes here" />
                             <Frame HeightRequest="70">
                                 <Frame.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DashBoardViewModel}}, Path=GoToRecordDetailsCommand}" 

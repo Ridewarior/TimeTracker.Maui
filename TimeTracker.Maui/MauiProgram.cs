@@ -22,10 +22,10 @@ public static class MauiProgram
         builder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<SQLiteDataService>(s, dbPath));
 
         builder.Services.AddSingleton<DashBoardViewModel>();
-        builder.Services.AddSingleton<DetailsPageViewModel>();
+        builder.Services.AddTransient<DetailsPageViewModel>();
 
         builder.Services.AddSingleton<DashBoardPage>();
-        builder.Services.AddSingleton<RecordDetailsPage>();
+        builder.Services.AddTransient<RecordDetailsPage>();
 
 #if DEBUG
 		builder.Logging.AddDebug();

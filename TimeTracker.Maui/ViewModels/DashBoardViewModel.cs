@@ -110,7 +110,7 @@ public partial class DashBoardViewModel : BaseViewModel
             return;
         }
 
-        await _currentShell.GoToAsync($"{nameof(RecordDetailsPage)}?RecordId={id}", true);
+        await _currentShell.GoToAsync($"{nameof(RecordDetailsPage)}?TimeRecordId={id}", true);
     }
     
     #endregion
