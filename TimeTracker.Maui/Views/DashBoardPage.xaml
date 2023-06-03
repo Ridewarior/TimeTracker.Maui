@@ -7,7 +7,7 @@
              x:DataType="viewmodel:DashBoardViewModel"
              Title="{Binding PageTitle}">
     
-    <Grid Padding="5" RowDefinitions="*, *">
+    <Grid Padding="5" RowDefinitions="*, auto">
         <RefreshView Grid.Row="0"
                      Command="{Binding GetTimeRecordsCommand}"
                      IsRefreshing="{Binding IsRefreshing}">
@@ -33,10 +33,8 @@
             </CollectionView>
         </RefreshView>
         
-        <Button Grid.Row="1"
-                Padding="5"
-                Text="Start Timer"
+        <Button Grid.Row="1" Padding="5" Margin="10"  Text="Start Timer" HeightRequest="100" WidthRequest="1200"
                 IsEnabled="{Binding IsLoaded}"
-                Command="{Binding CreateRecordCommand}"/>
+                Command="{Binding CreateRecordCommand}" />
     </Grid>
 </ContentPage>

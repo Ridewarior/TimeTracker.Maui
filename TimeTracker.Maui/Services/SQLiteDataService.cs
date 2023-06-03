@@ -25,7 +25,7 @@ public class SQLiteDataService
         {
             return;
         }
-
+        SQLitePCL.Batteries.Init();
         _conn = new SQLiteConnection(_dbPath);
         _conn.CreateTable<TimeRecord>();
     }

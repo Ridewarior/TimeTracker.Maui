@@ -10,7 +10,7 @@ namespace TimeTracker.Maui.ViewModels;
 
 public partial class DashBoardViewModel : BaseViewModel
 {
-    private readonly Shell _currentShell = Shell.Current;
+    public int NewRecId = -1;
     public ObservableCollection<TimeRecord> TimeRecords { get; private set; } = new();
 
     [ObservableProperty]
@@ -69,16 +69,16 @@ public partial class DashBoardViewModel : BaseViewModel
     [RelayCommand]
     public async Task CreateRecord()
     {
-        var currentTime = DateTime.Now;
-        var record = new TimeRecord
-        {
-            StartTime = currentTime.ToString(CultureInfo.InvariantCulture),
-            StopTime = currentTime.ToString(CultureInfo.InvariantCulture)
-        };
+        //var currentTime = DateTime.Now;
+        //var record = new TimeRecord
+        //{
+        //    StartTime = currentTime.ToString(CultureInfo.InvariantCulture),
+        //    StopTime = currentTime.ToString(CultureInfo.InvariantCulture)
+        //};
 
-        var newRecordId = App.DataService.AddRecord(record);
+        //var newRecordId = App.DataService.AddRecord(record);
 
-        await GoToRecordDetails(newRecordId);
+        await GoToRecordDetails(-1);
     }
 
     [RelayCommand]
@@ -86,18 +86,18 @@ public partial class DashBoardViewModel : BaseViewModel
     {
         if (id == 0)
         {
-            await _currentShell.DisplayAlert("Invalid Record", "Please try again", "OK");
+            await CurShell.DisplayAlert("Invalid Record", "Please try again", "OK");
             return;
         }
 
         var result = App.DataService.DeleteRecord(id);
         if (result == 0)
         {
-            await _currentShell.DisplayAlert("Invalid Data", "Please insert valid data", "OK0");
+            await CurShell.DisplayAlert("Invalid Data", "Please insert valid data", "OK0");
         }
         else
         {
-            await _currentShell.DisplayAlert("Delete Successful", "Record removed successfully", "OK");
+            await CurShell.DisplayAlert("Delete Successful", "Record removed successfully", "OK");
             await GetTimeRecords();
         }
     }
@@ -110,7 +110,7 @@ public partial class DashBoardViewModel : BaseViewModel
             return;
         }
 
-        await _currentShell.GoToAsync($"{nameof(RecordDetailsPage)}?TimeRecordId={id}", true);
+        await CurShell.GoToAsync($"{nameof(RecordDetailsPage)}?TimeRecordId={id}", true);
     }
     
     #endregion

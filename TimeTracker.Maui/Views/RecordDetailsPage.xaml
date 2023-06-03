@@ -8,40 +8,48 @@
              x:DataType="viewmodel:DetailsPageViewModel"
              Title="{Binding PageTitle}">
 
-    <ScrollView>
-        <StackLayout Padding="20" Spacing="10">
-            <Entry Placeholder="Record Title" Text="{Binding RecordTitle}" />
-            <Label Text="Total Time" />
-            <Frame BorderColor="Gray" CornerRadius="5" Padding="8" HeightRequest="60">
-                <StackLayout>
-                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
-                        <Label Text="Start" />
-                        <TimePicker />
-                        <DatePicker />
-                    </HorizontalStackLayout>
-                </StackLayout>
-            </Frame>
-            <Frame BorderColor="Gray" CornerRadius="5" Padding="8" HeightRequest="60">
-                <StackLayout>
-                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
-                        <Label Text="Stop" />
-                        <TimePicker />
-                        <DatePicker />
-                    </HorizontalStackLayout>
-                </StackLayout>
-            </Frame>
-            <Grid RowDefinitions="auto, auto, auto" ColumnDefinitions="auto, auto" RowSpacing="15" ColumnSpacing="15">
-                <Label Text="Work Item" Grid.Row="0" Grid.Column="0" />
-                <Entry Placeholder="WI#999" Grid.Row="0" Grid.Column="1" />
-                <Label Text="Client" Grid.Row="1" Grid.Column="0" />
-                <Entry Placeholder="Empower" Grid.Row="1" Grid.Column="1" />
-                <Label Text="Bucket ID" Grid.Row="2" Grid.Column="0" />
-                <Entry Placeholder="B1005612" Grid.Row="2" Grid.Column="1" />
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" IsEnabled="False"></BackButtonBehavior>
+    </Shell.BackButtonBehavior>
+    
+    <ScrollView HorizontalOptions="Center">
+        <StackLayout Padding="20" Spacing="20">
+            <Grid ColumnDefinitions="*, *">
+                <Entry Grid.Column="0" HorizontalOptions="Start" Placeholder="Record Title" Text="{Binding RecordTitle}" />
+                <Label Grid.Column="1" HorizontalOptions="End" Text="{Binding  TimeElapsed}" />
             </Grid>
-
-            <HorizontalStackLayout VerticalOptions="EndAndExpand" HorizontalOptions="Center" Spacing="100" HeightRequest="55">
-                <Button Text="Start" WidthRequest="250" />
+            <HorizontalStackLayout Spacing="10">
+                <Label Text="Set Stop Time" />
+                <CheckBox IsChecked="{Binding PresetStopTime}"/>
             </HorizontalStackLayout>
+            <Frame BorderColor="Gray" CornerRadius="5" Padding="8" HeightRequest="90">
+                <StackLayout>
+                    <Label HorizontalOptions="Center" Text="Start" Padding="0, 0, 0, 12"/>
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="12">
+                        <TimePicker />
+                        <DatePicker />
+                    </HorizontalStackLayout>
+                </StackLayout>
+            </Frame>
+            <Frame BorderColor="Gray" CornerRadius="5" Padding="8" HeightRequest="90" IsVisible="{Binding PresetStopTime}">
+                <StackLayout>
+                    <Label HorizontalOptions="Center" Text="Stop" Padding="0, 0, 0, 12" />
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="12">
+                        <TimePicker IsEnabled="{Binding PresetStopTime}" />
+                        <DatePicker IsEnabled="{Binding PresetStopTime}"/>
+                    </HorizontalStackLayout>
+                </StackLayout>
+            </Frame>
+            <Grid RowDefinitions="auto, auto, auto, auto, auto, auto" ColumnDefinitions="*, 200" RowSpacing="15" HorizontalOptions="Start">
+                <Label Grid.Row="0" Text="Work Item" />
+                <Entry Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding WorkItemTitle}" />
+                <Label Grid.Row="2" Text="Client Name" />
+                <Entry Grid.Row="3" Grid.ColumnSpan="2" Text="{Binding ClientName}" />
+                <Label Grid.Row="4" Text="Logging Id" />
+                <Entry Grid.Row="5" Grid.ColumnSpan="2" Text="{Binding LogId}" />
+            </Grid>
+            <Button Text="Start"  HorizontalOptions="Center" VerticalOptions="End" WidthRequest="250" HeightRequest="70"
+                    Command="{Binding StartTimerCommand}"/>
         </StackLayout>
     </ScrollView>
 </ContentPage>

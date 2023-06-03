@@ -53,5 +53,5 @@ public class TimeRecord
     /// Parent ID of the original Time Record.
     /// This is used for records that have multiple iterations.
     /// </summary>
-    public int ParentRecordID { get; set; }
+    public int? ParentRecordID { get; set; }
 }

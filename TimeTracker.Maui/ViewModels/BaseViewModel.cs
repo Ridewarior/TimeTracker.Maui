@@ -14,4 +14,6 @@ public partial class BaseViewModel : ObservableObject
     private bool _isRefreshing;
 
     public bool IsLoaded => !IsLoading;
+
+    public readonly Shell CurShell = Shell.Current;
 }
