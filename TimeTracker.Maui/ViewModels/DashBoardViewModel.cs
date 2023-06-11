@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TimeTracker.Maui.Models;
@@ -10,7 +9,7 @@ namespace TimeTracker.Maui.ViewModels;
 
 public partial class DashBoardViewModel : BaseViewModel
 {
-    public int NewRecId = -1;
+    private const int NewRecId = -1;
     public ObservableCollection<TimeRecord> TimeRecords { get; private set; } = new();
 
     [ObservableProperty]
@@ -78,7 +77,7 @@ public partial class DashBoardViewModel : BaseViewModel
 
         //var newRecordId = App.DataService.AddRecord(record);
 
-        await GoToRecordDetails(-1);
+        await GoToRecordDetails(NewRecId);
     }
 
     [RelayCommand]

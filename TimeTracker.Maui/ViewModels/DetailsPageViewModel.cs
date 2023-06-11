@@ -1,4 +1,3 @@
-using System.Text;
 using System.Web;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,13 +19,7 @@ public partial class DetailsPageViewModel : BaseViewModel, IQueryAttributable
     private string _recordTitle;
 
     [ObservableProperty]
-    private DateTime _startTime;
-
-    [ObservableProperty]
     private DateTime _stopTime;
-
-    [ObservableProperty]
-    private TimeSpan _timeElapsed;
 
     [ObservableProperty]
     private string _workItemTitle;

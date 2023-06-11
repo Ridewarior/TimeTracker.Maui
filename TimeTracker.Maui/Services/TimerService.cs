@@ -6,14 +6,14 @@ namespace TimeTracker.Maui.Services;
 public class TimerService
 {
     private readonly Timer _timer = new();
-    private readonly int _timerInterval = 1;
+    private const int TimerInterval = 1;
     private int _days, _hours, _minutes, _seconds, _milliseconds;
 
-    public TimeSpan ElapsedTime { get; set; } = TimeSpan.Zero;
+    public TimeSpan ElapsedTime { get; private set; } = TimeSpan.Zero;
 
     public TimerService()
     {
-        _timer.Interval = _timerInterval;
+        _timer.Interval = TimerInterval;
         _timer.Elapsed += CountEvent;
     }
 
@@ -44,7 +44,7 @@ public class TimerService
     /// <param name="startTime">Start date</param>
     /// <param name="endTime">End date</param>
     /// <returns>Returns the time between the two dates as a TimeSpan</returns>
-    public TimeSpan GetPresetTime(DateTime startTime, DateTime endTime)
+    public static TimeSpan GetPresetTime(DateTime startTime, DateTime endTime)
     {
         var interval = endTime - startTime;
         return interval;

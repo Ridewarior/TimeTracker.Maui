@@ -1,5 +1,4 @@
-﻿using TimeTracker.Maui.Models;
-using TimeTracker.Maui.Services;
+﻿using TimeTracker.Maui.Services;
 
 namespace TimeTracker.Maui;
 

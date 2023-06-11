@@ -12,8 +12,14 @@ public partial class BaseViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isRefreshing;
+    
+    [ObservableProperty]
+    private DateTime _startTime;
+    
+    [ObservableProperty]
+    private TimeSpan _timeElapsed;
 
     public bool IsLoaded => !IsLoading;
 
-    public readonly Shell CurShell = Shell.Current;
+    protected readonly Shell CurShell = Shell.Current;
 }
