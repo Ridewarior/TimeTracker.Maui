@@ -20,6 +20,7 @@ public static class MauiProgram
 			});
 
         builder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<SQLiteDataService>(s, dbPath));
+        builder.Services.AddSingleton<TimerService>();
 
         builder.Services.AddSingleton<DashBoardViewModel>();
         builder.Services.AddTransient<DetailsPageViewModel>();
