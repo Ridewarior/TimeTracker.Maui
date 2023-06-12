@@ -64,7 +64,7 @@ public partial class DetailsPageViewModel : BaseViewModel, IQueryAttributable
     [RelayCommand]
     public async Task StartTimer()
     {
-        // Start the timer here. We won't actually commit the record to the data source until the timer has stopped.
+        App.TimerService.StartTimer();
         await CurShell.Navigation.PopAsync(true);
     }
 }

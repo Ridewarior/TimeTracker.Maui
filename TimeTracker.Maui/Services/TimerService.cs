@@ -11,6 +11,8 @@ public class TimerService
 
     public TimeSpan ElapsedTime { get; private set; } = TimeSpan.Zero;
 
+    public event EventHandler TimerElapsed; 
+
     public TimerService()
     {
         _timer.Interval = TimerInterval;
@@ -72,7 +74,7 @@ public class TimerService
     {
         _milliseconds += 1;
 
-        if (_milliseconds == 100)
+        if (_milliseconds == 1000)
         {
             _milliseconds = 0;
             _seconds += 1;
@@ -98,5 +100,6 @@ public class TimerService
         }
 
         ElapsedTime = new TimeSpan(_days, _hours, _minutes, _seconds, _milliseconds);
+        TimerElapsed?.Invoke(this, EventArgs.Empty);
     }
 }

@@ -8,7 +8,7 @@ public class SQLiteDataService
 {
     private SQLiteConnection _conn;
     private readonly string _dbPath;
-    // TODO Eventually create a logger class that will handle logging full exceptions as well as holding status messages for display
+    // Eventually create a logger class that will handle logging full exceptions as well as holding status messages for display
     public string StatusMessage;
 
     public SQLiteDataService(string dbPath)

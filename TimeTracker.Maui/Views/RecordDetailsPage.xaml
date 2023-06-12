@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -16,7 +16,7 @@
         <StackLayout Padding="20" Spacing="20">
             <Grid ColumnDefinitions="*, *">
                 <Entry Grid.Column="0" HorizontalOptions="Start" Placeholder="Record Title" Text="{Binding RecordTitle}" />
-                <Label Grid.Column="1" HorizontalOptions="End" Text="{Binding  TimeElapsed}" />
+                <Label Grid.Column="1" HorizontalOptions="End" Text="{Binding TimeElapsed}" />
             </Grid>
             <HorizontalStackLayout Spacing="10">
                 <Label Text="Set Stop Time" />

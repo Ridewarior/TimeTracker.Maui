@@ -17,9 +17,20 @@ public partial class BaseViewModel : ObservableObject
     private DateTime _startTime;
     
     [ObservableProperty]
-    private TimeSpan _timeElapsed;
+    private string _timeElapsed;
 
     public bool IsLoaded => !IsLoading;
 
     protected readonly Shell CurShell = Shell.Current;
+
+    public BaseViewModel()
+    {
+        TimeElapsed = "00:00:00";
+        App.TimerService.TimerElapsed += TimerUpdated;
+    }
+
+    private void TimerUpdated(object sender, EventArgs e)
+    {
+        TimeElapsed = App.TimerService.ElapsedTime.ToString(App.TimeFormat);
+    }
 }
