@@ -60,7 +60,7 @@ public class SQLiteDataService
         try
         {
             Init();
-            return _conn.Table<TimeRecord>().FirstOrDefault(x => x.TimeRecordID == recordId);
+            return _conn.Table<TimeRecord>().FirstOrDefault(x => x.TIMERECORD_ID == recordId);
         }
         catch (Exception e)
         {
@@ -116,7 +116,7 @@ public class SQLiteDataService
         try
         {
             Init();
-            return _conn.Table<TimeRecord>().Delete(x => x.TimeRecordID == recordId);
+            return _conn.Table<TimeRecord>().Delete(x => x.TIMERECORD_ID == recordId);
         }
         catch (Exception e)
         {
