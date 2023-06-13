@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using TimeTracker.Maui.Models;
 
 namespace TimeTracker.Maui.ViewModels;
 
@@ -12,12 +13,20 @@ public partial class BaseViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isRefreshing;
-    
+
     [ObservableProperty]
-    private DateTime _startTime;
+    private string _recordTitle;
+
+    [ObservableProperty]
+    private DateTime _startTimeStamp;
+
+    [ObservableProperty]
+    private DateTime _stopTimeStamp;
     
     [ObservableProperty]
     private string _timeElapsed;
+
+    public TimeRecord DraftRecord { get; set; }
 
     public bool IsLoaded => !IsLoading;
 

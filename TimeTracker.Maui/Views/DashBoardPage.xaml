@@ -33,8 +33,10 @@
             </CollectionView>
         </RefreshView>
         
-        <Button Grid.Row="1" Padding="5" Margin="10"  Text="Start Timer" HeightRequest="100" WidthRequest="1200"
+
+        <Button Grid.Row="1" Padding="5" Margin="10"  Text="{Binding StartStopButtonText}" HeightRequest="100" WidthRequest="1200"
                 IsEnabled="{Binding IsLoaded}"
-                Command="{Binding CreateRecordCommand}" />
+                Command="{Binding StartNewTimeRecordCommand}" />
+
     </Grid>
 </ContentPage>

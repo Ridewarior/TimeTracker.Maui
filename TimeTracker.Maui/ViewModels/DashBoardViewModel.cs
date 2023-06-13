@@ -10,20 +10,25 @@ namespace TimeTracker.Maui.ViewModels;
 public partial class DashBoardViewModel : BaseViewModel
 {
     private const int NewRecId = -1;
-    public ObservableCollection<TimeRecord> TimeRecords { get; private set; } = new();
+
+    private const string StartTimerText = "Start Timer";
+
+    private const string StopTimerText = "Stop Timer";
 
     [ObservableProperty]
     private int _recordId;
-    
-    [ObservableProperty]
-    private string _recordTitle;
 
     [ObservableProperty]
-    private string _timeElapsed;
+    private string _startStopButtonText;
+
+    public ObservableCollection<TimeRecord> TimeRecords { get; private set; } = new();
 
     public DashBoardViewModel()
     {
         PageTitle = "DashBoard";
+
+        StartStopButtonText = App.TimerService.Running ? StopTimerText : StartTimerText;
+
         GetTimeRecords().Wait();
     }
 
@@ -66,17 +71,8 @@ public partial class DashBoardViewModel : BaseViewModel
     }
     
     [RelayCommand]
-    public async Task CreateRecord()
+    public async Task StartNewTimeRecord()
     {
-        //var currentTime = DateTime.Now;
-        //var record = new TimeRecord
-        //{
-        //    StartTime = currentTime.ToString(CultureInfo.InvariantCulture),
-        //    StopTime = currentTime.ToString(CultureInfo.InvariantCulture)
-        //};
-
-        //var newRecordId = App.DataService.AddRecord(record);
-
         await GoToRecordDetails(NewRecId);
     }
 
