@@ -58,10 +58,10 @@ public partial class DetailsPageViewModel : BaseViewModel, IQueryAttributable
 
             if (DateTime.TryParse(DraftRecord.START_TIMESTAMP, out var strTime) && DateTime.TryParse(DraftRecord.STOP_TIMESTAMP, out var stpTime))
             {
-                StartTime = new TimeSpan(strTime.Ticks);
+                StartTime = new TimeSpan(strTime.Hour, stpTime.Minute, strTime.Second);
                 StartTimeStamp = strTime;
 
-                StopTime = new TimeSpan(stpTime.Ticks);
+                StopTime = new TimeSpan(stpTime.Hour, stpTime.Minute, stpTime.Second);
                 StopTimeStamp = stpTime;
             }
 

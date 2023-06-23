@@ -13,8 +13,8 @@ public static class MauiProgram
 		//var dbPath = Path.Combine(FileSystem.AppDataDirectory, "TimeTrackerApp.db3");
 
 		// Temp DbPaths
-        var winDbPath = "C:\\Users\\Big Boss\\source\\repos\\TimeTracker.Maui\\TimeTrackerApp.db3";
-        var iosMacDbPath = "/Users/antoniomagallon/Desktop/repos/TimeTracker.Maui/TimeTrackerApp.db3";
+        const string winDbPath = "C:\\Users\\Big Boss\\source\\repos\\TimeTracker.Maui\\TimeTrackerApp.db3";
+        const string iosMacDbPath = "/Users/antoniomagallon/Desktop/repos/TimeTracker.Maui/TimeTrackerApp.db3";
 
         var builder = MauiApp.CreateBuilder();
 		builder
@@ -25,14 +25,13 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});
 
-		if (DeviceInfo.Platform == DevicePlatform.WinUI)
-		{
-			builder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<SQLiteDataService>(s, winDbPath)); 
-		}
-		else if (DeviceInfo.Platform == DevicePlatform.MacCatalyst || DeviceInfo.Platform == DevicePlatform.macOS || DeviceInfo.Platform == DevicePlatform.iOS)
-        {
-            builder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<SQLiteDataService>(s, iosMacDbPath));
-        }
+#if IOS
+        builder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<SQLiteDataService>(s, iosMacDbPath));
+#elif MACCATALYST
+        builder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<SQLiteDataService>(s, iosMacDbPath));
+#else
+        builder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<SQLiteDataService>(s, winDbPath));
+#endif
         //builder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<SQLiteDataService>(s, dbPath));
         builder.Services.AddSingleton<TimerService>();
 

@@ -15,10 +15,12 @@ public partial class DashBoardViewModel : BaseViewModel
 
     private const string StopTimerText = "Stop Timer";
 
-    [ObservableProperty]
+    private const int TextMaxLength = 25;
+
+    [ObservableProperty] 
     private int _recordId;
 
-    [ObservableProperty]
+    [ObservableProperty] 
     private string _startStopButtonText;
 
     public ObservableCollection<TimeRecord> TimeRecords { get; private set; } = new();
@@ -54,6 +56,7 @@ public partial class DashBoardViewModel : BaseViewModel
             var timeRecords = App.DataService.GetTimeRecords();
             foreach (var record in timeRecords)
             {
+                TruncateLongText(record);
                 TimeRecords.Add(record);
             }
 
@@ -69,7 +72,7 @@ public partial class DashBoardViewModel : BaseViewModel
             IsRefreshing = false;
         }
     }
-    
+
     [RelayCommand]
     public async Task StartNewTimeRecord()
     {
@@ -107,6 +110,34 @@ public partial class DashBoardViewModel : BaseViewModel
 
         await CurShell.GoToAsync($"{nameof(RecordDetailsPage)}?TimeRecordId={id}", true);
     }
-    
+
     #endregion
+
+    private void TruncateLongText(TimeRecord record)
+    {
+        if (record == null)
+        {
+            return;
+        }
+
+        var recordTitle = record.RECORD_TITLE;
+        var workItemTitle = record.WORKITEM_TITLE;
+        var clientName = record.CLIENT_NAME;
+
+        if (recordTitle.Length > TextMaxLength)
+        {
+            record.RECORD_TITLE = recordTitle[..TextMaxLength].TrimEnd() + "...";
+        }
+
+        if (workItemTitle.Length > TextMaxLength)
+        {
+            record.WORKITEM_TITLE = workItemTitle[..TextMaxLength].TrimEnd() + "...";
+        }
+
+        if (clientName.Length > TextMaxLength)
+        {
+            record.CLIENT_NAME = clientName[..TextMaxLength].TrimEnd() + "...";
+        }
+
+    }
 }
