@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:model="clr-namespace:TimeTracker.Maui.Models"
              xmlns:viewmodel="clr-namespace:TimeTracker.Maui.ViewModels"
-             x:Class="TimeTracker.Maui.Views.DashBoardPage"
+             x:Class="TimeTracker.Maui.Pages.DashBoardPage"
              x:DataType="viewmodel:DashBoardViewModel"
              Title="{Binding PageTitle}">
     

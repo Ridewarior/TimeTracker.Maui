@@ -6,8 +6,7 @@ using TimeTracker.Maui.Models;
 
 namespace TimeTracker.Maui.ViewModels;
 
-[QueryProperty(nameof(TimeRecordId), nameof(TimeRecordId))]
-public partial class DetailsPageViewModel : BaseViewModel, IQueryAttributable
+public partial class DetailsPageViewModel : BaseViewModel
 {
     private const string ExistingRecordStartText = "Continue Timer";
     private const string NewRecordStartText = "Start Timer";
@@ -39,12 +38,14 @@ public partial class DetailsPageViewModel : BaseViewModel, IQueryAttributable
     [ObservableProperty]
     private string _startBtnText;
 
-    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    public DetailsPageViewModel(int recordId)
     {
-        TimeRecordId = Convert.ToInt32(HttpUtility.UrlDecode(query[nameof(TimeRecordId)].ToString()));
+        TimeRecordId = recordId;
 
         PageLoad();
     }
+
+    #region Private Methods
 
     private void PageLoad()
     {
@@ -107,6 +108,8 @@ public partial class DetailsPageViewModel : BaseViewModel, IQueryAttributable
         return false;
     }
 
+    #endregion
+
     [RelayCommand]
     public async Task StartEvents()
     {
@@ -114,8 +117,19 @@ public partial class DetailsPageViewModel : BaseViewModel, IQueryAttributable
         // 1. If this is a brand new record and StopDateTimeEnabled flag is not set we can just start the timer and exit the page
         if (TimeRecordId < 0 && !StopDateTimeChecked)
         {
-            App.TimerService.StartTimer();
-            await CurShell.Navigation.PopAsync();
+            //App.TimerService.StartTimer();
+            App.DataService.AddRecord(new TimeRecord
+            {
+                RECORD_TITLE = RecordTitle,
+                START_TIMESTAMP = StartTimeStamp.Add(StartTime).ToString(CultureInfo.InvariantCulture),
+                STOP_TIMESTAMP = StopTimeStamp.Add(StopTime).ToString(CultureInfo.InvariantCulture),
+                TIME_ELAPSED = TimeElapsed,
+                WORKITEM_TITLE = WorkItemTitle,
+                CLIENT_NAME = ClientName,
+                LOG_ID = LogId
+            });
+            //await CurShell.Navigation.PopAsync();
+            await MopupInstance.PopAsync();
         }
         // 2. If this is a brand new record and we have the StopDateTimeEnabled flag set then we need to run some basic validations on the dates then call GetPresetTime method
         if (TimeRecordId < 0 && StopDateTimeChecked)
@@ -126,7 +140,8 @@ public partial class DetailsPageViewModel : BaseViewModel, IQueryAttributable
             }
             else if (CreatePreSetRecord())
             {
-                await CurShell.Navigation.PopAsync();
+                //await CurShell.Navigation.PopAsync();
+                await MopupInstance.PopAsync();
             }
             else
             {

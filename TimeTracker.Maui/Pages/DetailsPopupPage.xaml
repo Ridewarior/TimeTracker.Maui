@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mopups:PopupPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mopups="clr-namespace:Mopups.Pages;assembly=Mopups"
+             xmlns:viewmodel="clr-namespace:TimeTracker.Maui.ViewModels"
+             xmlns:animations="clr-namespace:Mopups.Animations;assembly=Mopups"
+             x:Class="TimeTracker.Maui.Pages.DetailsPopupPage"
+             x:DataType="viewmodel:DetailsPageViewModel"
+             BackgroundColor="#80000000">
+    
+    <mopups:PopupPage.Animation>
+        <animations:ScaleAnimation
+            DurationIn="600"
+            EasingIn="SpringOut"
+            PositionIn="Center"
+            PositionOut="Center"
+            ScaleIn="0.7"
+            ScaleOut="0.7"/>
+    </mopups:PopupPage.Animation>
+
+    <ScrollView HorizontalOptions="Center">
+        <Border WidthRequest="1000"
+                HeightRequest="700"
+                BackgroundColor="{AppThemeBinding Light=White, Dark=Black}"
+                HorizontalOptions="Center"
+                StrokeShape="RoundRectangle 10,10,10,10">
+            <StackLayout Padding="20"
+                         Spacing="20">
+                <Grid ColumnDefinitions="*,*">
+                    <Entry Grid.Column="0"
+                           HorizontalOptions="Start"
+                           Placeholder="Record Title"
+                           Text="{Binding RecordTitle, Mode=TwoWay}"/>
+                    <Label Grid.Column="1"
+                           HorizontalOptions="End"
+                           Text="{Binding TimeElapsed}"/>
+                </Grid>
+                <HorizontalStackLayout Spacing="10">
+                    <Label Margin="0,5,0,0"
+                           Text="Enable Stop DateTime"/>
+                    <CheckBox x:Name="CbStopTime"
+                              IsChecked="{Binding StopDateTimeChecked}"
+                              IsEnabled="{Binding StopDateTimeEnabled}"
+                              CheckedChanged="CbStopTime_OnCheckedChanged"/>
+                </HorizontalStackLayout>
+                <Border StrokeShape="RoundRectangle 10,10,10,10"
+                        Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark=gray}"
+                        StrokeThickness="2.8"
+                        BackgroundColor="{AppThemeBinding Dark=#1A1A1A}"
+                        Padding="8">
+                    <StackLayout>
+                        <Label HorizontalOptions="Center"
+                               Text="Start"
+                               Padding="0,0,0,12"/>
+                        <HorizontalStackLayout HorizontalOptions="Center"
+                                               Spacing="12">
+                            <TimePicker Time="{Binding StartTime}"/>
+                            <DatePicker Format="MM/dd"
+                                        Margin="0,0,0,10"
+                                        Date="{Binding StartTimeStamp}"
+                                        IsEnabled="{Binding StopDateTimeChecked}"
+                                        IsVisible="{Binding StopDateTimeChecked}"/>
+                        </HorizontalStackLayout>
+                    </StackLayout>
+                </Border>
+                <Border StrokeShape="RoundRectangle 10,10,10,10"
+                        Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark=gray}"
+                        StrokeThickness="2.8"
+                        BackgroundColor="{AppThemeBinding Dark=#1A1A1A}"
+                        Padding="8">
+                    <StackLayout>
+                        <Label HorizontalOptions="Center"
+                               Text="Stop"
+                               Padding="0,0,0,12"
+                               IsEnabled="{Binding StopDateTimeChecked}"/>
+                        <HorizontalStackLayout HorizontalOptions="Center"
+                                               Spacing="12">
+                            <TimePicker Time="{Binding StopTime}"
+                                        IsEnabled="{Binding StopDateTimeChecked}"/>
+                            <DatePicker Format="MM/dd"
+                                        Margin="0,0,0,10"
+                                        Date="{Binding StopTimeStamp}"
+                                        IsEnabled="{Binding StopDateTimeChecked}"
+                                        IsVisible="{Binding StopDateTimeChecked}"></DatePicker>
+                        </HorizontalStackLayout>
+                    </StackLayout>
+                </Border>
+                <Grid RowDefinitions="*,*"
+                      ColumnDefinitions="*,*,*"
+                      RowSpacing="15"
+                      ColumnSpacing="120"
+                      Margin="0,0,0,15"
+                      HorizontalOptions="Center">
+                    <Label Grid.Row="0"
+                           Grid.Column="0"
+                           Text="Work Item"
+                           LineBreakMode="NoWrap"
+                           Padding="80,0,80,0"/>
+                    <Label Grid.Row="0"
+                           Grid.Column="1"
+                           Text="Client Name"
+                           LineBreakMode="NoWrap"
+                           Padding="80,0,80,0"/>
+                    <Label Grid.Row="0"
+                           Grid.Column="2"
+                           Text="Logging ID"
+                           LineBreakMode="NoWrap"
+                           Padding="80,0,80,0"/>
+                    <Entry Grid.Row="1"
+                           Grid.Column="0"
+                           Text="{Binding WorkItemTitle}"/>
+                    <Entry Grid.Row="1"
+                           Grid.Column="1"
+                           Text="{Binding ClientName}"/>
+                    <Entry Grid.Row="1"
+                           Grid.Column="2"
+                           Text="{Binding LogId}"/>
+                </Grid>
+
+                <Button x:Name="BtnStart"
+                        Text="{Binding StartBtnText}"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        WidthRequest="250"
+                        HeightRequest="70"
+                        Command="{Binding StartEventsCommand}"/>
+            </StackLayout>
+        </Border>
+    </ScrollView>
+</mopups:PopupPage>

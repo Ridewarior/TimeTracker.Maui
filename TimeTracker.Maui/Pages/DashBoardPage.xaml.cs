@@ -1,8 +1,8 @@
 using TimeTracker.Maui.ViewModels;
 
-namespace TimeTracker.Maui.Views;
+namespace TimeTracker.Maui.Pages;
 
-public partial class DashBoardPage : ContentPage
+public partial class DashBoardPage
 {
 	public DashBoardPage(DashBoardViewModel dashBoardViewModel)
 	{

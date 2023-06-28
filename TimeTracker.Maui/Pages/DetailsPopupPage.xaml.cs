@@ -1,14 +1,14 @@
 using TimeTracker.Maui.ViewModels;
 
-namespace TimeTracker.Maui.Views;
+namespace TimeTracker.Maui.Pages;
 
-public partial class RecordDetailsPage : ContentPage
+public partial class DetailsPopupPage
 {
-    public RecordDetailsPage(DetailsPageViewModel detailsPageViewModel)
-    {
-        InitializeComponent();
-        BindingContext = detailsPageViewModel;
-    }
+	public DetailsPopupPage(DetailsPageViewModel viewModel)
+	{
+		InitializeComponent();
+        BindingContext = viewModel;
+	}
 
     private void CbStopTime_OnCheckedChanged(object sender, CheckedChangedEventArgs e)
     {

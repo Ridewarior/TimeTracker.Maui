@@ -2,7 +2,7 @@
 
 namespace TimeTracker.Maui;
 
-public partial class App : Application
+public partial class App
 {
     private const int WindowWidth = 1250;
 
@@ -11,6 +11,7 @@ public partial class App : Application
 	// Eventually create an interface for the DataServices to create less coupling
 	public static SQLiteDataService DataService { get; private set; }
 	
+    // TODO Consider making this non-static. each record should probably have their own dedicated timer
     public static TimerService TimerService { get; private set; }
     
     // Eventually this should be read in from preferences

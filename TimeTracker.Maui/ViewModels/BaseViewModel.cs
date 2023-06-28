@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Mopups.Interfaces;
+using Mopups.Services;
 using TimeTracker.Maui.Models;
 
 namespace TimeTracker.Maui.ViewModels;
@@ -31,6 +33,8 @@ public partial class BaseViewModel : ObservableObject
     public bool IsLoaded => !IsLoading;
 
     protected readonly Shell CurShell = Shell.Current;
+
+    public IPopupNavigation MopupInstance = MopupService.Instance;
 
     public BaseViewModel()
     {

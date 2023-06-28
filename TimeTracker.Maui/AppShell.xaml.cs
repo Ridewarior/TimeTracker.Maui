@@ -1,12 +1,9 @@
-﻿using TimeTracker.Maui.Views;
+﻿namespace TimeTracker.Maui;
 
-namespace TimeTracker.Maui;
-
-public partial class AppShell : Shell
+public partial class AppShell
 {
 	public AppShell()
 	{
 		InitializeComponent();
-		Routing.RegisterRoute(nameof(RecordDetailsPage), typeof(RecordDetailsPage));
-	}
+    }
 }

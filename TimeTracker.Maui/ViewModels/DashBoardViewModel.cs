@@ -2,8 +2,9 @@
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mopups.Events;
 using TimeTracker.Maui.Models;
-using TimeTracker.Maui.Views;
+using TimeTracker.Maui.Pages;
 
 namespace TimeTracker.Maui.ViewModels;
 
@@ -28,11 +29,48 @@ public partial class DashBoardViewModel : BaseViewModel
     public DashBoardViewModel()
     {
         PageTitle = "DashBoard";
-
         StartStopButtonText = App.TimerService.Running ? StopTimerText : StartTimerText;
 
+        MopupInstance.Popped += OnPopupPopped;
         GetTimeRecords().Wait();
     }
+
+    #region Private Methods
+
+    private void TruncateLongText(TimeRecord record)
+    {
+        if (record == null)
+        {
+            return;
+        }
+
+        var recordTitle = record.RECORD_TITLE;
+        var workItemTitle = record.WORKITEM_TITLE;
+        var clientName = record.CLIENT_NAME;
+
+        if (recordTitle?.Length > TextMaxLength)
+        {
+            record.RECORD_TITLE = recordTitle[..TextMaxLength].TrimEnd() + "...";
+        }
+
+        if (workItemTitle?.Length > TextMaxLength)
+        {
+            record.WORKITEM_TITLE = workItemTitle[..TextMaxLength].TrimEnd() + "...";
+        }
+
+        if (clientName?.Length > TextMaxLength)
+        {
+            record.CLIENT_NAME = clientName[..TextMaxLength].TrimEnd() + "...";
+        }
+
+    }
+
+    private void OnPopupPopped(object sender, PopupNavigationEventArgs e)
+    {
+        GetTimeRecords().Wait();
+    }
+
+    #endregion
 
     #region Page Commands
 
@@ -108,36 +146,9 @@ public partial class DashBoardViewModel : BaseViewModel
             return;
         }
 
-        await CurShell.GoToAsync($"{nameof(RecordDetailsPage)}?TimeRecordId={id}", true);
+        //await CurShell.GoToAsync($"{nameof(RecordDetailsPage)}?TimeRecordId={id}", true);
+        await MopupInstance.PushAsync(new DetailsPopupPage(new DetailsPageViewModel(id)));
     }
 
     #endregion
-
-    private void TruncateLongText(TimeRecord record)
-    {
-        if (record == null)
-        {
-            return;
-        }
-
-        var recordTitle = record.RECORD_TITLE;
-        var workItemTitle = record.WORKITEM_TITLE;
-        var clientName = record.CLIENT_NAME;
-
-        if (recordTitle.Length > TextMaxLength)
-        {
-            record.RECORD_TITLE = recordTitle[..TextMaxLength].TrimEnd() + "...";
-        }
-
-        if (workItemTitle.Length > TextMaxLength)
-        {
-            record.WORKITEM_TITLE = workItemTitle[..TextMaxLength].TrimEnd() + "...";
-        }
-
-        if (clientName.Length > TextMaxLength)
-        {
-            record.CLIENT_NAME = clientName[..TextMaxLength].TrimEnd() + "...";
-        }
-
-    }
 }
