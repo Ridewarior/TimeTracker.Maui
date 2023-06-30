@@ -3,14 +3,54 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:model="clr-namespace:TimeTracker.Maui.Models"
              xmlns:viewmodel="clr-namespace:TimeTracker.Maui.ViewModels"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:controls="clr-namespace:TimeTracker.Maui.Controls"
              x:Class="TimeTracker.Maui.Pages.DashBoardPage"
              x:DataType="viewmodel:DashBoardViewModel"
              Title="{Binding PageTitle}">
-    
-    <Grid RowDefinitions="*, auto"
-          Padding="5">
-        <RefreshView Grid.Row="0"
-                     Command="{Binding GetTimeRecordsCommand}"
+
+    <toolkit:DockLayout>
+        <Border toolkit:DockLayout.DockPosition="Top"
+                StrokeShape="RoundRectangle 0,0,10,10"
+                StrokeThickness="1.8"
+                BackgroundColor="{AppThemeBinding Dark=#1A1A1A}">
+            <Border.Stroke>
+                <LinearGradientBrush EndPoint="0,1">
+                    <GradientStop Color="{AppThemeBinding Light={StaticResource Gray200}, Dark=gray}"
+                                  Offset="1.0"/>
+                    <GradientStop Color="{AppThemeBinding Light=White, Dark=#1A1A1A}"
+                                  Offset="0.1"/>
+                </LinearGradientBrush>
+            </Border.Stroke>
+            <HorizontalStackLayout>
+                <controls:CircleButton toolkit:DockLayout.DockPosition="Top"
+                                       Image="plus_sign.png" 
+                                       Margin="10"
+                                       HeightRequest="55"
+                                       WidthRequest="60"/>
+
+            </HorizontalStackLayout>
+        </Border>
+        <Border toolkit:DockLayout.DockPosition="Bottom"
+                StrokeShape="RoundRectangle 10,10,0,0"
+                StrokeThickness="1.8"
+                BackgroundColor="{AppThemeBinding Dark=#1A1A1A}">
+            <Border.Stroke>
+                <LinearGradientBrush EndPoint="0,1">
+                    <GradientStop Color="{AppThemeBinding Light={StaticResource Gray200}, Dark=gray}"
+                                  Offset="0.1"/>
+                    <GradientStop Color="{AppThemeBinding Light=White, Dark=#1A1A1A}"
+                                  Offset="1.0"/>
+                </LinearGradientBrush>
+            </Border.Stroke>
+            <Button Padding="5"
+                    Margin="10"
+                    Text="{Binding StartStopButtonText}" HeightRequest="100" WidthRequest="1200"
+                    IsEnabled="{Binding IsLoaded}"
+                    Command="{Binding StartNewTimeRecordCommand}" />
+        </Border>
+
+        <RefreshView Command="{Binding GetTimeRecordsCommand}"
                      IsRefreshing="{Binding IsRefreshing}">
             <CollectionView ItemsSource="{Binding TimeRecords}"
                             SelectionMode="None">
@@ -61,12 +101,5 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </RefreshView>
-
-        <Button Grid.Row="1"
-                Padding="5"
-                Margin="10"
-                Text="{Binding StartStopButtonText}" HeightRequest="100" WidthRequest="1200"
-                IsEnabled="{Binding IsLoaded}"
-                Command="{Binding StartNewTimeRecordCommand}" />
-    </Grid>
+    </toolkit:DockLayout>
 </ContentPage>

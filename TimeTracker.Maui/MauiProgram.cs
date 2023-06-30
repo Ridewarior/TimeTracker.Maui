@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using CommunityToolkit.Maui;
+using Microsoft.Extensions.Logging;
 using Mopups.Hosting;
+using TimeTracker.Maui.Controls;
 using TimeTracker.Maui.Services;
 using TimeTracker.Maui.ViewModels;
 using TimeTracker.Maui.Pages;
@@ -20,7 +22,8 @@ public static class MauiProgram
 		builder
 			.UseMauiApp<App>()
             .ConfigureMopups()
-			.ConfigureFonts(fonts =>
+            .UseMauiCommunityToolkit()
+            .ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
