@@ -10,34 +10,44 @@ namespace TimeTracker.Maui.ViewModels;
 
 public partial class DashBoardViewModel : BaseViewModel
 {
-    private const int NewRecId = -1;
-
-    private const string StartTimerText = "Start Timer";
-
-    private const string StopTimerText = "Stop Timer";
-
     private const int TextMaxLength = 25;
 
-    [ObservableProperty] 
-    private int _recordId;
 
-    [ObservableProperty] 
-    private string _startStopButtonText;
+    public ObservableCollection<TimeRecord> TimeRecords { get; } = new();
 
-    public ObservableCollection<TimeRecord> TimeRecords { get; private set; } = new();
+    [ObservableProperty]
+    private bool _isNotRunning;
+
+    [ObservableProperty]
+    private bool _isRunning;
 
     public DashBoardViewModel()
     {
-        PageTitle = "DashBoard";
-        StartStopButtonText = App.TimerService.Running ? StopTimerText : StartTimerText;
+        PageTitle = "TimeTracker: DashBoard";
 
         MopupInstance.Popped += OnPopupPopped;
         GetTimeRecords().Wait();
+        UpdateControls();
     }
 
     #region Private Methods
 
-    private void TruncateLongText(TimeRecord record)
+    private void UpdateControls()
+    {
+        if (TimerRunning)
+        {
+            IsRunning = true;
+            IsNotRunning = false;
+        }
+        else
+        {
+            IsRunning = false;
+            IsNotRunning = true;
+        }
+
+    }
+
+    private static void TruncateLongText(TimeRecord record)
     {
         if (record == null)
         {
@@ -68,6 +78,7 @@ public partial class DashBoardViewModel : BaseViewModel
     private void OnPopupPopped(object sender, PopupNavigationEventArgs e)
     {
         GetTimeRecords().Wait();
+        UpdateControls();
     }
 
     #endregion
@@ -92,6 +103,8 @@ public partial class DashBoardViewModel : BaseViewModel
 
             // Eventually this should use a different DataService method better suited for the DashBoard so we don't pull the entire object.
             var timeRecords = App.DataService.GetTimeRecords();
+            timeRecords.Reverse();
+
             foreach (var record in timeRecords)
             {
                 TruncateLongText(record);
@@ -112,9 +125,9 @@ public partial class DashBoardViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task StartNewTimeRecord()
+    public async Task GoToBlankRecord()
     {
-        await GoToRecordDetails(NewRecId);
+        await GoToRecordDetails(NewRecordId);
     }
 
     [RelayCommand]
@@ -141,13 +154,24 @@ public partial class DashBoardViewModel : BaseViewModel
     [RelayCommand]
     public async Task GoToRecordDetails(int id)
     {
-        if (id == 0)
+        await MopupInstance.PushAsync(new DetailsPopupPage(new DetailsPageViewModel(id)));
+    }
+
+    [RelayCommand]
+    public async Task StopTimer()
+    {
+        if (StopAndSave())
         {
-            return;
+            await CurShell.DisplayAlert("Success", "Record was saved successfully", "OK");
+            ResetRunningRecord();
+            GetTimeRecords().Wait();
+        }
+        else
+        {
+            await CurShell.DisplayAlert("Error", "An error occurred while trying to stop and save this record, please try again", "OK");
         }
 
-        //await CurShell.GoToAsync($"{nameof(RecordDetailsPage)}?TimeRecordId={id}", true);
-        await MopupInstance.PushAsync(new DetailsPopupPage(new DetailsPageViewModel(id)));
+        UpdateControls();
     }
 
     #endregion

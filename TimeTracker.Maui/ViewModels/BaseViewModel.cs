@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Globalization;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Mopups.Interfaces;
 using Mopups.Services;
 using TimeTracker.Maui.Models;
@@ -7,6 +8,8 @@ namespace TimeTracker.Maui.ViewModels;
 
 public partial class BaseViewModel : ObservableObject
 {
+    public const int NewRecordId = 0;
+
     [ObservableProperty]
     private string _pageTitle;
 
@@ -17,9 +20,6 @@ public partial class BaseViewModel : ObservableObject
     private bool _isRefreshing;
 
     [ObservableProperty]
-    private string _recordTitle;
-
-    [ObservableProperty]
     private DateTime _startTimeStamp;
 
     [ObservableProperty]
@@ -28,9 +28,11 @@ public partial class BaseViewModel : ObservableObject
     [ObservableProperty]
     private string _timeElapsed;
 
-    public TimeRecord DraftRecord { get; set; }
+    public static TimeRecord RunningRecord { get; set; }
 
     public bool IsLoaded => !IsLoading;
+
+    public bool TimerRunning => App.TimerService.Running;
 
     protected readonly Shell CurShell = Shell.Current;
 
@@ -45,5 +47,35 @@ public partial class BaseViewModel : ObservableObject
     private void TimerUpdated(object sender, EventArgs e)
     {
         TimeElapsed = App.TimerService.ElapsedTime.ToString(App.TimeFormat);
+    }
+
+    public bool StopAndSave()
+    {
+        App.TimerService.StopTimer();
+        RunningRecord.STOP_TIMESTAMP = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+        RunningRecord.TIME_ELAPSED = TimeElapsed;
+        var result = App.DataService.AddRecord(RunningRecord);
+
+        return result != 0;
+    }
+
+    public bool StopAndSave(TimeRecord record)
+    {
+        App.TimerService.StopTimer();
+        RunningRecord.RECORD_TITLE = record.RECORD_TITLE;
+        RunningRecord.CLIENT_NAME = record.CLIENT_NAME;
+        RunningRecord.WORKITEM_TITLE = record.WORKITEM_TITLE;
+        RunningRecord.LOG_ID = record.LOG_ID;
+        RunningRecord.STOP_TIMESTAMP = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+        RunningRecord.TIME_ELAPSED = TimeElapsed;
+        var result = App.DataService.AddRecord(RunningRecord);
+
+        return result != 0;
+
+    }
+
+    public static void ResetRunningRecord()
+    {
+        RunningRecord = null;
     }
 }

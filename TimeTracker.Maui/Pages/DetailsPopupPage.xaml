@@ -24,33 +24,37 @@
                 BackgroundColor="{AppThemeBinding Light=White, Dark=Black}"
                 HorizontalOptions="Center"
                 StrokeShape="RoundRectangle 10,10,10,10">
-            <StackLayout Padding="20"
-                         Spacing="20">
+            <StackLayout Padding="30"
+                         Spacing="20"
+                         Margin="0,20,0,0">
                 <Grid ColumnDefinitions="*,*">
                     <Entry Grid.Column="0"
                            HorizontalOptions="Start"
                            Placeholder="Record Title"
-                           Text="{Binding RecordTitle, Mode=TwoWay}"/>
+                           Text="{Binding TimeRecord.RECORD_TITLE}"/>
                     <Label Grid.Column="1"
                            HorizontalOptions="End"
-                           Text="{Binding TimeElapsed}"/>
+                           Text="{Binding TimeElapsed}"
+                           FontAttributes="Bold"/>
                 </Grid>
-                <HorizontalStackLayout Spacing="10">
-                    <Label Margin="0,5,0,0"
-                           Text="Enable Stop DateTime"/>
-                    <CheckBox x:Name="CbStopTime"
-                              IsChecked="{Binding StopDateTimeChecked}"
-                              IsEnabled="{Binding StopDateTimeEnabled}"
-                              CheckedChanged="CbStopTime_OnCheckedChanged"/>
-                </HorizontalStackLayout>
+                <Button Margin="0,10,0,0"
+                        HorizontalOptions="Start"
+                        WidthRequest="200"
+                        HeightRequest="50"
+                        Text="{Binding EnableDisableDateTimeTxt}"
+                        FontAttributes="Bold"
+                        Command="{Binding EnableDisableStopDateCommand}"
+                        IsEnabled="{Binding StopDateTimeEnabled}"/>
                 <Border StrokeShape="RoundRectangle 10,10,10,10"
                         Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark=gray}"
                         StrokeThickness="2.8"
                         BackgroundColor="{AppThemeBinding Dark=#1A1A1A}"
-                        Padding="8">
+                        Padding="8"
+                        Margin="0,8,0,0">
                     <StackLayout>
                         <Label HorizontalOptions="Center"
                                Text="Start"
+                               FontAttributes="Bold"
                                Padding="0,0,0,12"/>
                         <HorizontalStackLayout HorizontalOptions="Center"
                                                Spacing="12">
@@ -58,8 +62,7 @@
                             <DatePicker Format="MM/dd"
                                         Margin="0,0,0,10"
                                         Date="{Binding StartTimeStamp}"
-                                        IsEnabled="{Binding StopDateTimeChecked}"
-                                        IsVisible="{Binding StopDateTimeChecked}"/>
+                                        IsEnabled="{Binding StopDateTimeChecked}"/>
                         </HorizontalStackLayout>
                     </StackLayout>
                 </Border>
@@ -67,10 +70,13 @@
                         Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark=gray}"
                         StrokeThickness="2.8"
                         BackgroundColor="{AppThemeBinding Dark=#1A1A1A}"
-                        Padding="8">
+                        Padding="8"
+                        Margin="0,8,0,0"
+                        IsVisible="{Binding StopDateTimeChecked}">
                     <StackLayout>
                         <Label HorizontalOptions="Center"
                                Text="Stop"
+                               FontAttributes="Bold"
                                Padding="0,0,0,12"
                                IsEnabled="{Binding StopDateTimeChecked}"/>
                         <HorizontalStackLayout HorizontalOptions="Center"
@@ -80,8 +86,7 @@
                             <DatePicker Format="MM/dd"
                                         Margin="0,0,0,10"
                                         Date="{Binding StopTimeStamp}"
-                                        IsEnabled="{Binding StopDateTimeChecked}"
-                                        IsVisible="{Binding StopDateTimeChecked}"></DatePicker>
+                                        IsEnabled="{Binding StopDateTimeChecked}"/>
                         </HorizontalStackLayout>
                     </StackLayout>
                 </Border>
@@ -89,41 +94,65 @@
                       ColumnDefinitions="*,*,*"
                       RowSpacing="15"
                       ColumnSpacing="120"
-                      Margin="0,0,0,15"
+                      Margin="0,10,0,15"
                       HorizontalOptions="Center">
                     <Label Grid.Row="0"
                            Grid.Column="0"
                            Text="Work Item"
+                           FontAttributes="Bold"
                            LineBreakMode="NoWrap"
-                           Padding="80,0,80,0"/>
+                           Padding="80,0,78,0"/>
                     <Label Grid.Row="0"
                            Grid.Column="1"
                            Text="Client Name"
+                           FontAttributes="Bold"
                            LineBreakMode="NoWrap"
-                           Padding="80,0,80,0"/>
+                           Padding="80,0,70,0"/>
                     <Label Grid.Row="0"
                            Grid.Column="2"
                            Text="Logging ID"
+                           FontAttributes="Bold"
                            LineBreakMode="NoWrap"
-                           Padding="80,0,80,0"/>
+                           Padding="80,0,78,0"/>
                     <Entry Grid.Row="1"
                            Grid.Column="0"
-                           Text="{Binding WorkItemTitle}"/>
+                           Text="{Binding TimeRecord.WORKITEM_TITLE}"/>
                     <Entry Grid.Row="1"
                            Grid.Column="1"
-                           Text="{Binding ClientName}"/>
+                           Text="{Binding TimeRecord.CLIENT_NAME}"/>
                     <Entry Grid.Row="1"
                            Grid.Column="2"
-                           Text="{Binding LogId}"/>
+                           Text="{Binding TimeRecord.LOG_ID}"/>
                 </Grid>
 
-                <Button x:Name="BtnStart"
-                        Text="{Binding StartBtnText}"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center"
-                        WidthRequest="250"
-                        HeightRequest="70"
-                        Command="{Binding StartEventsCommand}"/>
+                <HorizontalStackLayout HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       Spacing="100"
+                                       Margin="0,10,0,0">
+                    <Button Text="{Binding StartBtnText}"
+                            FontAttributes="Bold"
+                            WidthRequest="250"
+                            HeightRequest="70"
+                            Command="{Binding StartEventsCommand}"
+                            IsEnabled="{Binding EnableStartBtn }"/>
+
+                    <Button Text="{Binding StopCancelBtnText}"
+                            FontAttributes="Bold"
+                            WidthRequest="250"
+                            HeightRequest="70"
+                            BackgroundColor="Orange"
+                            Command="{Binding CancelOrStopCommand}"/>
+
+                    <Button Text="Delete"
+                            FontAttributes="Bold"
+                            WidthRequest="250"
+                            HeightRequest="70"
+                            BackgroundColor="Red"
+                            IsEnabled="{Binding EnableDeleteBtn}"
+                            IsVisible="{Binding EnableDeleteBtn}"
+                            Command="{Binding DeleteRecordCommand}"/>
+
+                </HorizontalStackLayout>
             </StackLayout>
         </Border>
     </ScrollView>

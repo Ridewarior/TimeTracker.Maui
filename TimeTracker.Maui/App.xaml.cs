@@ -8,10 +8,9 @@ public partial class App
 
     private const int WindowHeight = 850;
 
-	// Eventually create an interface for the DataServices to create less coupling
+	// Eventually create an interface for the DataServices
 	public static SQLiteDataService DataService { get; private set; }
 	
-    // TODO Consider making this non-static. each record should probably have their own dedicated timer
     public static TimerService TimerService { get; private set; }
     
     // Eventually this should be read in from preferences
@@ -32,9 +31,9 @@ public partial class App
         var window = base.CreateWindow(activationState);
 
         window.Width = WindowWidth;
+        window.MinimumWidth = WindowWidth;
         window.Height = WindowHeight;
-        window.X = 600;
-        window.Y = 350;
+        window.MinimumHeight = WindowHeight;
 
         return window;
     }

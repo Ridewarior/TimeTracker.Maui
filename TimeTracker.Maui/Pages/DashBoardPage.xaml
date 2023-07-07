@@ -1,36 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:model="clr-namespace:TimeTracker.Maui.Models"
              xmlns:viewmodel="clr-namespace:TimeTracker.Maui.ViewModels"
+             xmlns:views="clr-namespace:TimeTracker.Maui.Views"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:controls="clr-namespace:TimeTracker.Maui.Controls"
              x:Class="TimeTracker.Maui.Pages.DashBoardPage"
              x:DataType="viewmodel:DashBoardViewModel"
              Title="{Binding PageTitle}">
 
+    <!-- RefreshView pull down to refresh isn't currently working on Windows -->
     <toolkit:DockLayout>
-        <Border toolkit:DockLayout.DockPosition="Top"
-                StrokeShape="RoundRectangle 0,0,10,10"
-                StrokeThickness="1.8"
-                BackgroundColor="{AppThemeBinding Dark=#1A1A1A}">
-            <Border.Stroke>
-                <LinearGradientBrush EndPoint="0,1">
-                    <GradientStop Color="{AppThemeBinding Light={StaticResource Gray200}, Dark=gray}"
-                                  Offset="1.0"/>
-                    <GradientStop Color="{AppThemeBinding Light=White, Dark=#1A1A1A}"
-                                  Offset="0.1"/>
-                </LinearGradientBrush>
-            </Border.Stroke>
-            <HorizontalStackLayout>
-                <controls:CircleButton toolkit:DockLayout.DockPosition="Top"
-                                       Image="plus_sign.png" 
-                                       Margin="10"
-                                       HeightRequest="55"
-                                       WidthRequest="60"/>
-
-            </HorizontalStackLayout>
-        </Border>
         <Border toolkit:DockLayout.DockPosition="Bottom"
                 StrokeShape="RoundRectangle 10,10,0,0"
                 StrokeThickness="1.8"
@@ -43,63 +22,36 @@
                                   Offset="1.0"/>
                 </LinearGradientBrush>
             </Border.Stroke>
-            <Button Padding="5"
-                    Margin="10"
-                    Text="{Binding StartStopButtonText}" HeightRequest="100" WidthRequest="1200"
-                    IsEnabled="{Binding IsLoaded}"
-                    Command="{Binding StartNewTimeRecordCommand}" />
+
+            <HorizontalStackLayout HorizontalOptions="Center"
+                                   Spacing="20"
+                                   Margin="10">
+                <Button Text="Start Timer"
+                        FontAttributes="Bold"
+                        HeightRequest="100"
+                        WidthRequest="580"
+                        Command="{Binding GoToBlankRecordCommand}"
+                        IsEnabled="{Binding IsNotRunning}"/>
+
+                <Button Text="Stop Timer"
+                        FontAttributes="Bold"
+                        HeightRequest="100"
+                        WidthRequest="580"
+                        Command="{Binding StopTimerCommand}"
+                        IsEnabled="{Binding IsRunning}"/>
+            </HorizontalStackLayout>
         </Border>
 
-        <RefreshView Command="{Binding GetTimeRecordsCommand}"
-                     IsRefreshing="{Binding IsRefreshing}">
-            <CollectionView ItemsSource="{Binding TimeRecords}"
-                            SelectionMode="None">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="model:TimeRecord">
-                        <VerticalStackLayout Padding="10">
-                            <Border StrokeShape="RoundRectangle 10, 10, 10, 10"
-                                    Padding="30"
-                                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark=gray}"
-                                    StrokeThickness="2.8"
-                                    BackgroundColor="{AppThemeBinding Dark=#1A1A1A}">
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DashBoardViewModel}}, Path=GoToRecordDetailsCommand}" 
-                                                          CommandParameter="{Binding TIMERECORD_ID}"/>
-                                </Border.GestureRecognizers>
-                                <Grid ColumnDefinitions="*,*,*,*,*">
-                                    <Label Grid.Column="0"
-                                           HorizontalOptions="Start"
-                                           Text="{Binding RECORD_TITLE}"
-                                           FontAttributes="Bold"
-                                           Margin="2,0,0,0"/>
-                                    <Label Grid.Column="1"
-                                           Text="WI:"
-                                           FontAttributes="Bold"/>
-                                    <Label Grid.Column="1"
-                                           Text="{Binding WORKITEM_TITLE}"
-                                           Margin="25, 0, 0, 0"/>
-                                    <Label Grid.Column="2"
-                                           Text="Client:"
-                                           FontAttributes="Bold"/>
-                                    <Label Grid.Column="2"
-                                           Text="{Binding CLIENT_NAME}"
-                                           Margin="45,0,0,0"/>
-                                    <Label Grid.Column="3"
-                                           Text="LogID:"
-                                           FontAttributes="Bold"/>
-                                    <Label Grid.Column="3"
-                                           Text="{Binding LOG_ID}"
-                                           Margin="45,0,0,0"/>
-                                    <Label Grid.Column="4"
-                                           HorizontalOptions="End"
-                                           Text="{Binding TIME_ELAPSED}"
-                                           FontAttributes="Bold"/>
-                                </Grid>
-                            </Border>
-                        </VerticalStackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </RefreshView>
+        <ScrollView toolkit:DockLayout.DockPosition="None">
+            <RefreshView Command="{Binding GetTimeRecordsCommand}"
+                         IsRefreshing="{Binding IsRefreshing}">
+                <StackLayout>
+                    <views:RunningRecordView IsVisible="{Binding IsRunning}"
+                                             IsEnabled="{Binding IsRunning}"/>
+
+                    <views:TimeRecordsCollectionView/>
+                </StackLayout>
+            </RefreshView>
+        </ScrollView>
     </toolkit:DockLayout>
 </ContentPage>
