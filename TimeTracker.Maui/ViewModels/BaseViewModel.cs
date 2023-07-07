@@ -32,7 +32,7 @@ public partial class BaseViewModel : ObservableObject
 
     public bool IsLoaded => !IsLoading;
 
-    public bool TimerRunning => App.TimerService.Running;
+    public static bool TimerRunning => App.TimerService.Running;
 
     protected readonly Shell CurShell = Shell.Current;
 

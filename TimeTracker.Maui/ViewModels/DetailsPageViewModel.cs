@@ -45,6 +45,8 @@ public partial class DetailsPageViewModel : BaseViewModel
 
     private DateTime StoppingTime => StopTimeStamp.Add(StopTime);
 
+    private DateTime _currentTime;
+
     public bool EnableStartBtn => !TimerRunning;
 
     public bool EnableDeleteBtn => TimeRecord.TIMERECORD_ID > 0;
@@ -66,6 +68,7 @@ public partial class DetailsPageViewModel : BaseViewModel
         if (TimeRecord.TIMERECORD_ID > 0)
         {
             TimeRecord = App.DataService.GetTimeRecord(TimeRecord.TIMERECORD_ID);
+            _currentTime = DateTime.Now;
 
             if (DateTime.TryParse(TimeRecord.START_TIMESTAMP, out var strTime) && DateTime.TryParse(TimeRecord.STOP_TIMESTAMP, out var stpTime))
             {
@@ -102,12 +105,12 @@ public partial class DetailsPageViewModel : BaseViewModel
         else
         {
             StopDateTimeEnabled = true;
-            var currentTime = DateTime.Now;
-            StartTime = new TimeSpan(currentTime.Hour, currentTime.Minute, currentTime.Second);
-            StartTimeStamp = currentTime.Date;
+            _currentTime = DateTime.Now;
+            StartTime = new TimeSpan(_currentTime.Hour, _currentTime.Minute, _currentTime.Second);
+            StartTimeStamp = _currentTime.Date;
 
-            StopTime = new TimeSpan(currentTime.Hour, currentTime.Minute, currentTime.Second);
-            StopTimeStamp = currentTime.Date;
+            StopTime = new TimeSpan(_currentTime.Hour, _currentTime.Minute, _currentTime.Second);
+            StopTimeStamp = _currentTime.Date;
 
             StopCancelBtnText = CancelText;
         }
@@ -161,16 +164,30 @@ public partial class DetailsPageViewModel : BaseViewModel
         // 1. If this is a brand new record and StopDateTimeEnabled flag is not set we can just start the timer and exit the page
         if (IsNewRec && !StopDateTimeChecked)
         {
+            if (StartingTime > _currentTime)
+            {
+                await CurShell.DisplayAlert("Error", "Cannot start timer ahead of the current time", "OK");
+                return;
+            }
+
             RunningRecord = new TimeRecord
             {
                 RECORD_TITLE = TimeRecord.RECORD_TITLE,
-                START_TIMESTAMP = StartTimeStamp.Add(StartTime).ToString(CultureInfo.InvariantCulture),
+                START_TIMESTAMP = StartingTime.ToString(CultureInfo.InvariantCulture),
                 WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE,
                 CLIENT_NAME = TimeRecord.CLIENT_NAME,
                 LOG_ID = TimeRecord.LOG_ID
             };
 
-            App.TimerService.StartTimer();
+            if (StartingTime < _currentTime)
+            {
+                App.TimerService.StartTimer(_currentTime - StartingTime);
+            }
+            else
+            {
+                App.TimerService.StartTimer();
+            }
+            
             await MopupInstance.PopAsync();
         }
         // 2. If this is a brand new record and we have the StopDateTimeEnabled flag set then we need to run some basic validations on the dates then call GetPresetTime method

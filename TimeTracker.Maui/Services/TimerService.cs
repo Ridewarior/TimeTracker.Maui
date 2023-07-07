@@ -35,6 +35,25 @@ public class TimerService
     }
 
     /// <summary>
+    /// Starts the timer with existing time added
+    /// </summary>
+    /// <param name="existingTime"></param>
+    public void StartTimer(TimeSpan existingTime)
+    {
+        if (ElapsedTime != TimeSpan.Zero || _hours > 0 || _minutes > 0 || _seconds > 0)
+        {
+            ResetTimer();
+        }
+
+        ElapsedTime = existingTime;
+        _hours = existingTime.Hours;
+        _minutes = existingTime.Minutes;
+
+        _timer.Start();
+        Running = true;
+    }
+
+    /// <summary>
     /// Stops the timer
     /// </summary>
     public void StopTimer()

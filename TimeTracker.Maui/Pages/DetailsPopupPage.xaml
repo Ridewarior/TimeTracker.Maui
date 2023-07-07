@@ -140,7 +140,7 @@
                             FontAttributes="Bold"
                             WidthRequest="250"
                             HeightRequest="70"
-                            BackgroundColor="Orange"
+                            BackgroundColor="DarkOrange"
                             Command="{Binding CancelOrStopCommand}"/>
 
                     <Button Text="Delete"
