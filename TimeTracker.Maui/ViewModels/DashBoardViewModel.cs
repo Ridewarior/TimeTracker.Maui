@@ -34,7 +34,7 @@ public partial class DashBoardViewModel : BaseViewModel
 
     private void UpdateControls()
     {
-        if (TimerRunning)
+        if (TimerRunning && RunningRecord.REC_TIMER_RUNNING)
         {
             IsRunning = true;
             IsNotRunning = false;
@@ -44,7 +44,6 @@ public partial class DashBoardViewModel : BaseViewModel
             IsRunning = false;
             IsNotRunning = true;
         }
-
     }
 
     private static void TruncateLongText(TimeRecord record)

@@ -39,7 +39,8 @@ public partial class DetailsPageViewModel : BaseViewModel
     [ObservableProperty] 
     private static TimeRecord _timeRecord;
 
-    private bool IsNewRec => TimeRecord.TIMERECORD_ID == 0;
+    [ObservableProperty]
+    private bool _startTimeEnabled = true;
 
     private DateTime StartingTime => StartTimeStamp.Add(StartTime);
 
@@ -47,7 +48,11 @@ public partial class DetailsPageViewModel : BaseViewModel
 
     private DateTime _currentTime;
 
-    public bool EnableStartBtn => !TimerRunning;
+    private DateTime _originalStartTime;
+
+    public bool IsNewRec => TimeRecord.TIMERECORD_ID == 0;
+
+    public bool EnableStartBtn => !TimeRecord.REC_TIMER_RUNNING;
 
     public bool EnableDeleteBtn => TimeRecord.TIMERECORD_ID > 0;
 
@@ -65,10 +70,14 @@ public partial class DetailsPageViewModel : BaseViewModel
 
     private void PageLoad()
     {
+        if (TimerRunning && !RunningRecord.REC_TIMER_RUNNING)
+        {
+            App.TimerService.StopTimer();
+        }
+
         if (TimeRecord.TIMERECORD_ID > 0)
         {
             TimeRecord = App.DataService.GetTimeRecord(TimeRecord.TIMERECORD_ID);
-            _currentTime = DateTime.Now;
 
             if (DateTime.TryParse(TimeRecord.START_TIMESTAMP, out var strTime) && DateTime.TryParse(TimeRecord.STOP_TIMESTAMP, out var stpTime))
             {
@@ -82,6 +91,7 @@ public partial class DetailsPageViewModel : BaseViewModel
             StopDateTimeChecked = true;
             StopDateTimeEnabled = false;
             StopCancelBtnText = CancelText;
+            StartTimeEnabled = false;
         }
         else if (IsNewRec && TimerRunning)
         {
@@ -90,7 +100,8 @@ public partial class DetailsPageViewModel : BaseViewModel
                 RECORD_TITLE = RunningRecord.RECORD_TITLE,
                 WORKITEM_TITLE = RunningRecord.WORKITEM_TITLE,
                 CLIENT_NAME = RunningRecord.CLIENT_NAME,
-                LOG_ID = RunningRecord.LOG_ID
+                LOG_ID = RunningRecord.LOG_ID,
+                REC_TIMER_RUNNING = RunningRecord.REC_TIMER_RUNNING
             };
 
             if (DateTime.TryParse(RunningRecord.START_TIMESTAMP, out var strTime))
@@ -101,6 +112,7 @@ public partial class DetailsPageViewModel : BaseViewModel
 
             StopDateTimeEnabled = false;
             StopCancelBtnText = StopText;
+            StartTimeEnabled = false;
         }
         else
         {
@@ -112,7 +124,9 @@ public partial class DetailsPageViewModel : BaseViewModel
             StopTime = new TimeSpan(_currentTime.Hour, _currentTime.Minute, _currentTime.Second);
             StopTimeStamp = _currentTime.Date;
 
+            _originalStartTime = StartingTime;
             StopCancelBtnText = CancelText;
+            App.TimerService.StartTimer(DateTime.Now - StartingTime);
         }
 
         StartBtnText = (StopDateTimeChecked && !StopDateTimeEnabled) ? ExistingRecordText : NewRecordText;
@@ -121,13 +135,15 @@ public partial class DetailsPageViewModel : BaseViewModel
 
     private bool CreatePreSetRecord()
     {
+        App.TimerService.StopTimer();
+
         TimeElapsed = App.TimerService.GetPresetTime(StartingTime, StoppingTime).ToString();
 
         var result = App.DataService.AddRecord(new TimeRecord
         {
             RECORD_TITLE = TimeRecord.RECORD_TITLE,
-            START_TIMESTAMP = StartTimeStamp.Add(StartTime).ToString(CultureInfo.InvariantCulture),
-            STOP_TIMESTAMP = StopTimeStamp.Add(StopTime).ToString(CultureInfo.InvariantCulture),
+            START_TIMESTAMP = StartingTime.ToString(CultureInfo.InvariantCulture),
+            STOP_TIMESTAMP = StoppingTime.ToString(CultureInfo.InvariantCulture),
             TIME_ELAPSED = TimeElapsed.ToString(CultureInfo.InvariantCulture),
             WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE,
             CLIENT_NAME = TimeRecord.CLIENT_NAME,
@@ -138,6 +154,27 @@ public partial class DetailsPageViewModel : BaseViewModel
     }
 
     #endregion
+
+    public async Task AdjustStartTime()
+    {
+        if (!StopDateTimeChecked)
+        {
+            if (StartingTime > DateTime.Now)
+            {
+                await CurShell.DisplayAlert("Error", "Start time cannot be in the future", "OK");
+                StartTimeStamp = _originalStartTime.Date;
+                StartTime = new TimeSpan(_originalStartTime.Hour, _originalStartTime.Minute, _originalStartTime.Second);
+            }
+
+            if (StartingTime != _originalStartTime)
+            {
+                var pullBack = StartingTime < _originalStartTime;
+                _originalStartTime = StartingTime;
+
+                App.TimerService.AdjustTimer(DateTime.Now - StartingTime, pullBack);
+            }
+        }
+    }
 
     [RelayCommand]
     public async Task EnableDisableStopDate()
@@ -154,6 +191,7 @@ public partial class DetailsPageViewModel : BaseViewModel
             case false:
                 StartBtnText = NewRecordText;
                 EnableDisableDateTimeTxt = EnableDateTimeText;
+                await AdjustStartTime();
                 break;
         }
     }
@@ -161,72 +199,71 @@ public partial class DetailsPageViewModel : BaseViewModel
     [RelayCommand]
     public async Task StartEvents()
     {
-        // 1. If this is a brand new record and StopDateTimeEnabled flag is not set we can just start the timer and exit the page
-        if (IsNewRec && !StopDateTimeChecked)
+        switch (IsNewRec)
         {
-            if (StartingTime > _currentTime)
+            case true when !StopDateTimeChecked:
             {
-                await CurShell.DisplayAlert("Error", "Cannot start timer ahead of the current time", "OK");
-                return;
-            }
+                if (StartingTime > _currentTime)
+                {
+                    await CurShell.DisplayAlert("Error", "Cannot start timer ahead of the current time", "OK");
+                    return;
+                }
 
-            RunningRecord = new TimeRecord
-            {
-                RECORD_TITLE = TimeRecord.RECORD_TITLE,
-                START_TIMESTAMP = StartingTime.ToString(CultureInfo.InvariantCulture),
-                WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE,
-                CLIENT_NAME = TimeRecord.CLIENT_NAME,
-                LOG_ID = TimeRecord.LOG_ID
-            };
+                RunningRecord = new TimeRecord
+                {
+                    RECORD_TITLE = TimeRecord.RECORD_TITLE,
+                    START_TIMESTAMP = StartingTime.ToString(CultureInfo.InvariantCulture),
+                    WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE,
+                    CLIENT_NAME = TimeRecord.CLIENT_NAME,
+                    LOG_ID = TimeRecord.LOG_ID,
+                    REC_TIMER_RUNNING = true
+                };
 
-            if (StartingTime < _currentTime)
-            {
-                App.TimerService.StartTimer(_currentTime - StartingTime);
-            }
-            else
-            {
-                App.TimerService.StartTimer();
-            }
-            
-            await MopupInstance.PopAsync();
-        }
-        // 2. If this is a brand new record and we have the StopDateTimeEnabled flag set then we need to run some basic validations on the dates then call GetPresetTime method
-        else if (IsNewRec && StopDateTimeChecked)
-        {
-            if (StoppingTime <= StartingTime)
-            {
-                await CurShell.DisplayAlert("Error", "The Stop time cannot be the same or before the Start time.", "OK");
-            }
-            else if (CreatePreSetRecord())
-            {
                 await MopupInstance.PopAsync();
+                break;
             }
-            else
+            case true when StopDateTimeChecked:
             {
-                await CurShell.DisplayAlert("Error", "An error occurred while creating the Time Record, Please try again", "OK");
-            }
-        }
-        // 3. If This is an existing record we need to display the option to start the timer again.
-        else if (!IsNewRec)
-        {
-            RunningRecord = new TimeRecord
-            {
-                RECORD_TITLE = TimeRecord.RECORD_TITLE,
-                START_TIMESTAMP = DateTime.Now.ToString(CultureInfo.InvariantCulture),
-                WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE,
-                CLIENT_NAME = TimeRecord.CLIENT_NAME,
-                LOG_ID = TimeRecord.LOG_ID
-            };
+                if (StoppingTime <= StartingTime)
+                {
+                    await CurShell.DisplayAlert("Error", "The Stop time cannot be the same or before the Start time.", "OK");
+                }
+                else if (CreatePreSetRecord())
+                {
+                    await MopupInstance.PopAsync();
+                }
+                else
+                {
+                    await CurShell.DisplayAlert("Error", "An error occurred while creating the Time Record, Please try again", "OK");
+                }
 
-            App.TimerService.StartTimer();
-            await MopupInstance.PopAsync();
+                break;
+            }
+            case false:
+            {
+                _currentTime = DateTime.Now;
+
+                RunningRecord = new TimeRecord
+                {
+                    RECORD_TITLE = TimeRecord.RECORD_TITLE,
+                    START_TIMESTAMP = _currentTime.ToString(CultureInfo.InvariantCulture),
+                    WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE,
+                    CLIENT_NAME = TimeRecord.CLIENT_NAME,
+                    LOG_ID = TimeRecord.LOG_ID,
+                    REC_TIMER_RUNNING = true
+                };
+
+                App.TimerService.StartTimer(DateTime.Now - _currentTime);
+                await MopupInstance.PopAsync();
+                break;
+            }
         }
     }
 
     [RelayCommand]
     public async Task CancelOrStop()
     {
-        if (TimerRunning && IsNewRec)
+        if (IsNewRec && TimerRunning && TimeRecord.REC_TIMER_RUNNING)
         {
             if (StopAndSave(TimeRecord))
             {
@@ -241,6 +278,10 @@ public partial class DetailsPageViewModel : BaseViewModel
         }
         else
         {
+            if (TimerRunning && TimeRecord.REC_TIMER_RUNNING)
+            {
+                App.TimerService.StopTimer();
+            }
             await MopupInstance.PopAsync();
         }
     }

@@ -23,20 +23,6 @@ public class TimerService
     /// <summary>
     /// Starts the timer
     /// </summary>
-    public void StartTimer()
-    {
-        if (ElapsedTime != TimeSpan.Zero || _hours > 0 || _minutes > 0 || _seconds > 0)
-        {
-            ResetTimer();
-        }
-
-        _timer.Start();
-        Running = true;
-    }
-
-    /// <summary>
-    /// Starts the timer with existing time added
-    /// </summary>
     /// <param name="existingTime"></param>
     public void StartTimer(TimeSpan existingTime)
     {
@@ -51,6 +37,19 @@ public class TimerService
 
         _timer.Start();
         Running = true;
+    }
+
+    /// <summary>
+    /// Adjusts the Elapsed time forwards or backwards
+    /// </summary>
+    /// <param name="newStartTime"></param>
+    /// <param name="pullBack"></param>
+    public void AdjustTimer(TimeSpan newStartTime, bool pullBack)
+    {
+        ElapsedTime = pullBack ? ElapsedTime.Add(newStartTime) : ElapsedTime.Subtract(newStartTime);
+
+        _hours = newStartTime.Hours;
+        _minutes = newStartTime.Minutes;
     }
 
     /// <summary>

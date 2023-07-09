@@ -32,11 +32,13 @@
                            HorizontalOptions="Start"
                            Placeholder="Record Title"
                            Text="{Binding TimeRecord.RECORD_TITLE}"/>
-                    <Label Grid.Column="1"
+                    <Label x:Name="LblElapsedTime"
+                           Grid.Column="1"
                            HorizontalOptions="End"
-                           Text="{Binding TimeElapsed}"
+                           Text="{Binding TimeRecord.TIME_ELAPSED}"
                            FontAttributes="Bold"/>
                 </Grid>
+                <!-- Eventually this button should be removed and replaced with a Switch control -->
                 <Button Margin="0,10,0,0"
                         HorizontalOptions="Start"
                         WidthRequest="200"
@@ -58,11 +60,16 @@
                                Padding="0,0,0,12"/>
                         <HorizontalStackLayout HorizontalOptions="Center"
                                                Spacing="12">
-                            <TimePicker Time="{Binding StartTime}"/>
-                            <DatePicker Format="MM/dd"
+                            <TimePicker x:Name="TpStartTime"
+                                        Time="{Binding StartTime}"
+                                        PropertyChanged="StartingTime_OnPropertyChanged"
+                                        />
+                            <DatePicker x:Name="DpStartDate"
+                                        Format="MM/dd"
                                         Margin="0,0,0,10"
                                         Date="{Binding StartTimeStamp}"
-                                        IsEnabled="{Binding StopDateTimeChecked}"/>
+                                        IsEnabled="{Binding StopDateTimeChecked}"
+                                        PropertyChanged="StartingTime_OnPropertyChanged"/>
                         </HorizontalStackLayout>
                     </StackLayout>
                 </Border>
@@ -134,7 +141,7 @@
                             WidthRequest="250"
                             HeightRequest="70"
                             Command="{Binding StartEventsCommand}"
-                            IsEnabled="{Binding EnableStartBtn }"/>
+                            IsEnabled="{Binding EnableStartBtn}"/>
 
                     <Button Text="{Binding StopCancelBtnText}"
                             FontAttributes="Bold"
