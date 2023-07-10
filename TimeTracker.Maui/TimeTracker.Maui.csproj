@@ -12,7 +12,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 
 		<!-- Display name -->
-		<ApplicationTitle>TimeTracker.Maui</ApplicationTitle>
+		<ApplicationTitle>TimeTracker</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.timetracker.maui</ApplicationId>

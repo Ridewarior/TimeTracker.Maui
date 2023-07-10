@@ -46,4 +46,10 @@ public class TimeRecord
     /// This is commonly used to identify which ID the time should be logged under in a corporate system.
     /// </summary>
     public string LOG_ID { get; set; }
+
+    /// <summary>
+    /// True if the selected record has a running timer
+    /// </summary>
+    [Ignore]
+    public bool REC_TIMER_RUNNING { get; set; }
 }

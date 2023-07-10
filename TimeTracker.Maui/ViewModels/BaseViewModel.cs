@@ -28,7 +28,7 @@ public partial class BaseViewModel : ObservableObject
     [ObservableProperty]
     private string _timeElapsed;
 
-    public static TimeRecord RunningRecord { get; set; }
+    public static TimeRecord RunningRecord { get; set; } = new();
 
     public bool IsLoaded => !IsLoading;
 
@@ -51,9 +51,15 @@ public partial class BaseViewModel : ObservableObject
 
     public bool StopAndSave()
     {
+        if (!TimerRunning)
+        {
+            return false;
+        }
+
         App.TimerService.StopTimer();
         RunningRecord.STOP_TIMESTAMP = DateTime.Now.ToString(CultureInfo.InvariantCulture);
         RunningRecord.TIME_ELAPSED = TimeElapsed;
+        RunningRecord.REC_TIMER_RUNNING = false;
         var result = App.DataService.AddRecord(RunningRecord);
 
         return result != 0;
@@ -61,6 +67,11 @@ public partial class BaseViewModel : ObservableObject
 
     public bool StopAndSave(TimeRecord record)
     {
+        if (!TimerRunning)
+        {
+            return false;
+        }
+
         App.TimerService.StopTimer();
         RunningRecord.RECORD_TITLE = record.RECORD_TITLE;
         RunningRecord.CLIENT_NAME = record.CLIENT_NAME;
@@ -68,14 +79,14 @@ public partial class BaseViewModel : ObservableObject
         RunningRecord.LOG_ID = record.LOG_ID;
         RunningRecord.STOP_TIMESTAMP = DateTime.Now.ToString(CultureInfo.InvariantCulture);
         RunningRecord.TIME_ELAPSED = TimeElapsed;
+        RunningRecord.REC_TIMER_RUNNING = false;
         var result = App.DataService.AddRecord(RunningRecord);
 
         return result != 0;
-
     }
 
     public static void ResetRunningRecord()
     {
-        RunningRecord = null;
+        RunningRecord = new();
     }
 }
