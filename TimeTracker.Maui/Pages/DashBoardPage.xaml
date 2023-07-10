@@ -23,23 +23,16 @@
                 </LinearGradientBrush>
             </Border.Stroke>
 
-            <HorizontalStackLayout HorizontalOptions="Center"
-                                   Spacing="20"
-                                   Margin="10">
-                <Button Text="Start Timer"
+            <Grid RowDefinitions="*"
+                  Margin="10"
+                  HeightRequest="100">
+                <Button Grid.Row="0"
+                        Text="{Binding BtnMainText}"
                         FontAttributes="Bold"
-                        HeightRequest="100"
-                        WidthRequest="580"
-                        Command="{Binding GoToBlankRecordCommand}"
-                        IsEnabled="{Binding IsNotRunning}"/>
-
-                <Button Text="Stop Timer"
-                        FontAttributes="Bold"
-                        HeightRequest="100"
-                        WidthRequest="580"
-                        Command="{Binding StopTimerCommand}"
-                        IsEnabled="{Binding IsRunning}"/>
-            </HorizontalStackLayout>
+                        BackgroundColor="{Binding BackgroundColor}"
+                        Command="{Binding MainButtonClickedCommand}"
+                        IsEnabled="{Binding IsLoaded}"/>
+            </Grid>
         </Border>
 
         <ScrollView toolkit:DockLayout.DockPosition="None">

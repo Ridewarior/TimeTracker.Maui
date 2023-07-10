@@ -12,14 +12,32 @@ public partial class DashBoardViewModel : BaseViewModel
 {
     private const int TextMaxLength = 25;
 
+    private const string StartTimerText = "Start Timer";
+
+    private const string StopTimerText = "Stop Timer";
 
     public ObservableCollection<TimeRecord> TimeRecords { get; } = new();
 
     [ObservableProperty]
-    private bool _isNotRunning;
+    private bool _isRunning;
 
     [ObservableProperty]
-    private bool _isRunning;
+    private string _recordTitle;
+
+    [ObservableProperty]
+    private string _workItemTitle;
+
+    [ObservableProperty]
+    private string _clientName;
+
+    [ObservableProperty]
+    private string _logId;
+
+    [ObservableProperty]
+    private string _btnMainText;
+
+    [ObservableProperty]
+    private Color _backgroundColor;
 
     public DashBoardViewModel()
     {
@@ -36,13 +54,19 @@ public partial class DashBoardViewModel : BaseViewModel
     {
         if (TimerRunning && RunningRecord.REC_TIMER_RUNNING)
         {
+            BtnMainText = StopTimerText;
+            BackgroundColor = Color.FromArgb("#ff8c00");
             IsRunning = true;
-            IsNotRunning = false;
+            RecordTitle = RunningRecord.RECORD_TITLE;
+            WorkItemTitle = RunningRecord.WORKITEM_TITLE;
+            ClientName = RunningRecord.CLIENT_NAME;
+            LogId = RunningRecord.LOG_ID;
         }
         else
         {
+            BtnMainText = StartTimerText;
+            BackgroundColor = Color.FromArgb("#512BD4");
             IsRunning = false;
-            IsNotRunning = true;
         }
     }
 
@@ -71,7 +95,6 @@ public partial class DashBoardViewModel : BaseViewModel
         {
             record.CLIENT_NAME = clientName[..TextMaxLength].TrimEnd() + "...";
         }
-
     }
 
     private void OnPopupPopped(object sender, PopupNavigationEventArgs e)
@@ -127,6 +150,19 @@ public partial class DashBoardViewModel : BaseViewModel
     public async Task GoToBlankRecord()
     {
         await GoToRecordDetails(NewRecordId);
+    }
+
+    [RelayCommand]
+    public async Task MainButtonClicked()
+    {
+        if (!TimerRunning)
+        {
+            await GoToBlankRecord();
+        }
+        else
+        {
+            await StopTimer();
+        }
     }
 
     [RelayCommand]

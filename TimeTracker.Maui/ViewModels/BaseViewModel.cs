@@ -51,6 +51,11 @@ public partial class BaseViewModel : ObservableObject
 
     public bool StopAndSave()
     {
+        if (!TimerRunning)
+        {
+            return false;
+        }
+
         App.TimerService.StopTimer();
         RunningRecord.STOP_TIMESTAMP = DateTime.Now.ToString(CultureInfo.InvariantCulture);
         RunningRecord.TIME_ELAPSED = TimeElapsed;
@@ -62,6 +67,11 @@ public partial class BaseViewModel : ObservableObject
 
     public bool StopAndSave(TimeRecord record)
     {
+        if (!TimerRunning)
+        {
+            return false;
+        }
+
         App.TimerService.StopTimer();
         RunningRecord.RECORD_TITLE = record.RECORD_TITLE;
         RunningRecord.CLIENT_NAME = record.CLIENT_NAME;
