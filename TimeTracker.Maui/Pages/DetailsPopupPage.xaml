@@ -38,15 +38,15 @@
                            Text="{Binding TimeRecord.TIME_ELAPSED}"
                            FontAttributes="Bold"/>
                 </Grid>
-                <!-- Eventually this button should be removed and replaced with a Switch control -->
-                <Button Margin="0,10,0,0"
-                        HorizontalOptions="Start"
-                        WidthRequest="200"
-                        HeightRequest="50"
-                        Text="{Binding EnableDisableDateTimeTxt}"
-                        FontAttributes="Bold"
-                        Command="{Binding EnableDisableStopDateCommand}"
-                        IsEnabled="{Binding StopDateTimeEnabled}"/>
+                <HorizontalStackLayout Margin="0,10,0,0"
+                                       HorizontalOptions="Start"
+                                       Spacing="10"
+                                       IsVisible="{Binding StopDateTimeEnabled}"
+                                       IsEnabled="{Binding StopDateTimeEnabled}">
+                    <Label Margin="0,8,0,0"
+                           Text="{Binding EnableDisableDateTimeTxt}"/>
+                    <Switch Toggled="Switch_OnToggled"/>
+                </HorizontalStackLayout>
                 <Border StrokeShape="RoundRectangle 10,10,10,10"
                         Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark=gray}"
                         StrokeThickness="2.8"

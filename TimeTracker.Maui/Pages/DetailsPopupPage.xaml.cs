@@ -13,9 +13,9 @@ public partial class DetailsPopupPage
         InitializeComponent();
         BindingContext = viewModel;
 
-        if (viewModel.IsNewRec)
+        if (_viewModel.IsNewRec)
         {
-            LblElapsedTime.SetBinding(Label.TextProperty, nameof(viewModel.TimeElapsed));
+            LblElapsedTime.SetBinding(Label.TextProperty, nameof(_viewModel.TimeElapsed));
         }
     }
 
@@ -27,5 +27,10 @@ public partial class DetailsPopupPage
         }
 
         await _viewModel.AdjustStartTime();
+    }
+
+    private async void Switch_OnToggled(object sender, ToggledEventArgs e)
+    {
+        await _viewModel.EnableDisableStopDate();
     }
 }

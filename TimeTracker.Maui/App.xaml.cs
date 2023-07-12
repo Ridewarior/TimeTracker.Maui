@@ -1,4 +1,5 @@
-﻿using TimeTracker.Maui.Services;
+﻿using Microsoft.Maui.Handlers;
+using TimeTracker.Maui.Services;
 
 namespace TimeTracker.Maui;
 
@@ -23,7 +24,17 @@ public partial class App
         DataService = dataService;
 		TimerService = timerService;
 		TimeFormat = @"hh\:mm\:ss";
-	}
+
+#if WINDOWS
+        SwitchHandler.Mapper.AppendToMapping("Custom", (h, v) =>
+        {
+            // removes On/Off label next to Switch control on Windows
+            h.PlatformView.OffContent = string.Empty;
+            h.PlatformView.OnContent = string.Empty;
+            h.PlatformView.MinWidth = 0;
+        });
+#endif
+    }
 
 #if WINDOWS
     protected override Window CreateWindow(IActivationState activationState)
