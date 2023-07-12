@@ -57,9 +57,9 @@ public partial class DashBoardViewModel : BaseViewModel
             BtnMainText = StopTimerText;
             BackgroundColor = Color.FromArgb("#ff8c00");
             IsRunning = true;
-            RecordTitle = RunningRecord.RECORD_TITLE;
-            WorkItemTitle = RunningRecord.WORKITEM_TITLE;
-            ClientName = RunningRecord.CLIENT_NAME;
+            RecordTitle = TruncateLongText(RunningRecord.RECORD_TITLE);
+            WorkItemTitle = TruncateLongText(RunningRecord.WORKITEM_TITLE);
+            ClientName = TruncateLongText(RunningRecord.CLIENT_NAME);
             LogId = RunningRecord.LOG_ID;
         }
         else
@@ -95,6 +95,16 @@ public partial class DashBoardViewModel : BaseViewModel
         {
             record.CLIENT_NAME = clientName[..TextMaxLength].TrimEnd() + "...";
         }
+    }
+
+    private static string TruncateLongText(string selectedText)
+    {
+        if (selectedText?.Length > TextMaxLength)
+        {
+            return selectedText[..TextMaxLength].TrimEnd() + "...";
+        }
+
+        return selectedText;
     }
 
     private void OnPopupPopped(object sender, PopupNavigationEventArgs e)
