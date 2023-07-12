@@ -111,6 +111,11 @@ public partial class DashBoardViewModel : BaseViewModel
     {
         GetTimeRecords().Wait();
         UpdateControls();
+
+        if (TimerRunning && !RunningRecord.REC_TIMER_RUNNING)
+        {
+            App.TimerService.StopTimer();
+        }
     }
 
     #endregion
