@@ -55,7 +55,7 @@ public class SQLiteDataService
     /// </summary>
     /// <param name="recordId"></param>
     /// <returns>Returns a TimeRecord</returns>
-    public TimeRecord GetTimeRecord(int recordId)
+    public TimeRecord GetTimeRecord(string recordId)
     {
         try
         {
@@ -69,6 +69,48 @@ public class SQLiteDataService
         }
         
         return null;
+    }
+
+    /// <summary>
+    /// Gets the Record Title of the given Record Id
+    /// </summary>
+    /// <param name="recordId"></param>
+    /// <returns></returns>
+    public string GetParentRecordTitle(string recordId)
+    {
+        try
+        {
+            Init();
+            return _conn.Table<TimeRecord>().Where(x => x.TIMERECORD_ID == recordId).Select(x => x.RECORD_TITLE).FirstOrDefault();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Failed to retrieve Time Record Title. Inner exception: \n{e.Message} \n{e.InnerException}");
+            StatusMessage = "Failed to retrieve Time Record";
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Gets the count of Time Records with the same Parent Record Id
+    /// </summary>
+    /// <param name="recordId"></param>
+    /// <returns></returns>
+    public int GetResumedRecordCount(string recordId)
+    {
+        try
+        {
+            Init();
+            return _conn.Table<TimeRecord>().Count(x => x.PARENT_RECORD_ID == recordId);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Failed to retrieve count of Time Records. Inner exception: \n{e.Message} \n{e.InnerException}");
+            StatusMessage = "Failed to retrieve count of Time Records";
+        }
+
+        return 0;
     }
     
     /// <summary>
@@ -111,7 +153,7 @@ public class SQLiteDataService
     /// </summary>
     /// <param name="recordId"></param>
     /// <returns>Returns that Delete result</returns>
-    public int DeleteRecord(int recordId)
+    public int DeleteRecord(string recordId)
     {
         try
         {

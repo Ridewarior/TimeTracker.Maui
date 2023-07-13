@@ -1,14 +1,14 @@
-﻿using System.Globalization;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Mopups.Interfaces;
 using Mopups.Services;
+using System.Globalization;
 using TimeTracker.Maui.Models;
 
 namespace TimeTracker.Maui.ViewModels;
 
 public partial class BaseViewModel : ObservableObject
 {
-    public const int NewRecordId = 0;
+    public readonly string NewRecordId = Guid.Empty.ToString();
 
     [ObservableProperty]
     private string _pageTitle;
@@ -57,26 +57,7 @@ public partial class BaseViewModel : ObservableObject
         }
 
         App.TimerService.StopTimer();
-        RunningRecord.STOP_TIMESTAMP = DateTime.Now.ToString(CultureInfo.InvariantCulture);
-        RunningRecord.TIME_ELAPSED = TimeElapsed;
-        RunningRecord.REC_TIMER_RUNNING = false;
-        var result = App.DataService.AddRecord(RunningRecord);
-
-        return result != 0;
-    }
-
-    public bool StopAndSave(TimeRecord record)
-    {
-        if (!TimerRunning)
-        {
-            return false;
-        }
-
-        App.TimerService.StopTimer();
-        RunningRecord.RECORD_TITLE = record.RECORD_TITLE;
-        RunningRecord.CLIENT_NAME = record.CLIENT_NAME;
-        RunningRecord.WORKITEM_TITLE = record.WORKITEM_TITLE;
-        RunningRecord.LOG_ID = record.LOG_ID;
+        RunningRecord.TIMERECORD_ID = Guid.NewGuid().ToString();
         RunningRecord.STOP_TIMESTAMP = DateTime.Now.ToString(CultureInfo.InvariantCulture);
         RunningRecord.TIME_ELAPSED = TimeElapsed;
         RunningRecord.REC_TIMER_RUNNING = false;
@@ -87,6 +68,15 @@ public partial class BaseViewModel : ObservableObject
 
     public static void ResetRunningRecord()
     {
-        RunningRecord = new();
+        RunningRecord = new TimeRecord();
+    }
+
+    public static string BuildResumedRecordTitle()
+    {
+        var originalRecordTitle = App.DataService.GetParentRecordTitle(RunningRecord.PARENT_RECORD_ID);
+        var resumedRecordCount = App.DataService.GetResumedRecordCount(RunningRecord.PARENT_RECORD_ID);
+        // always +2 the value returned since the original record will be uncounted
+        var newRecordTitle = $"({resumedRecordCount + 2}) " + originalRecordTitle;
+        return newRecordTitle;
     }
 }

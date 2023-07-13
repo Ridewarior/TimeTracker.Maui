@@ -181,15 +181,15 @@ public partial class DashBoardViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task DeleteRecord(int id)
+    public async Task DeleteRecord(string recordId)
     {
-        if (id == 0)
+        if (string.IsNullOrWhiteSpace(recordId))
         {
             await CurShell.DisplayAlert("Invalid Record", "Please try again", "OK");
             return;
         }
 
-        var result = App.DataService.DeleteRecord(id);
+        var result = App.DataService.DeleteRecord(recordId);
         if (result == 0)
         {
             await CurShell.DisplayAlert("Invalid Data", "Please insert valid data", "OK0");
@@ -202,9 +202,9 @@ public partial class DashBoardViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task GoToRecordDetails(int id)
+    public async Task GoToRecordDetails(string recordId)
     {
-        await MopupInstance.PushAsync(new DetailsPopupPage(new DetailsPageViewModel(id)));
+        await MopupInstance.PushAsync(new DetailsPopupPage(new DetailsPageViewModel(recordId)));
     }
 
     [RelayCommand]

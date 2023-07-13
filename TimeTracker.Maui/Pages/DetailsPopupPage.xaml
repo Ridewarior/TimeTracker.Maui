@@ -4,9 +4,16 @@
              xmlns:mopups="clr-namespace:Mopups.Pages;assembly=Mopups"
              xmlns:viewmodel="clr-namespace:TimeTracker.Maui.ViewModels"
              xmlns:animations="clr-namespace:Mopups.Animations;assembly=Mopups"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="TimeTracker.Maui.Pages.DetailsPopupPage"
              x:DataType="viewmodel:DetailsPageViewModel"
              BackgroundColor="#80000000">
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
     
     <mopups:PopupPage.Animation>
         <animations:ScaleAnimation
@@ -155,8 +162,8 @@
                             WidthRequest="250"
                             HeightRequest="70"
                             BackgroundColor="Red"
-                            IsEnabled="{Binding EnableDeleteBtn}"
-                            IsVisible="{Binding EnableDeleteBtn}"
+                            IsEnabled="{Binding IsNewRec, Converter={StaticResource InvertedBoolConverter}}"
+                            IsVisible="{Binding IsNewRec, Converter={StaticResource InvertedBoolConverter}}"
                             Command="{Binding DeleteRecordCommand}"/>
 
                 </HorizontalStackLayout>

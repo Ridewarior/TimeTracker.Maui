@@ -8,8 +8,8 @@ public class TimeRecord
     /// <summary>
     /// Unique ID of the Time Record
     /// </summary>
-    [PrimaryKey, AutoIncrement]
-    public int TIMERECORD_ID { get; set; }
+    [PrimaryKey]
+    public string TIMERECORD_ID { get; set; }
 
     /// <summary>
     /// Title of the Time Record
@@ -46,6 +46,11 @@ public class TimeRecord
     /// This is commonly used to identify which ID the time should be logged under in a corporate system.
     /// </summary>
     public string LOG_ID { get; set; }
+
+    /// <summary>
+    /// Record Id of the parent the current record is resuming
+    /// </summary>
+    public string PARENT_RECORD_ID { get; set; }
 
     /// <summary>
     /// True if the selected record has a running timer
