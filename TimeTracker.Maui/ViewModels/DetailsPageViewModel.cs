@@ -96,15 +96,11 @@ public partial class DetailsPageViewModel : BaseViewModel
             }
             case true when TimerRunning:
             {
-                TimeRecord = new TimeRecord
-                {
-                    TIMERECORD_ID = RunningRecord.TIMERECORD_ID,
-                    RECORD_TITLE = RunningRecord.RECORD_TITLE,
-                    WORKITEM_TITLE = RunningRecord.WORKITEM_TITLE,
-                    CLIENT_NAME = RunningRecord.CLIENT_NAME,
-                    LOG_ID = RunningRecord.LOG_ID,
-                    REC_TIMER_RUNNING = RunningRecord.REC_TIMER_RUNNING
-                };
+                TimeRecord.RECORD_TITLE = RunningRecord.RECORD_TITLE;
+                TimeRecord.WORKITEM_TITLE = RunningRecord.WORKITEM_TITLE;
+                TimeRecord.CLIENT_NAME = RunningRecord.CLIENT_NAME;
+                TimeRecord.LOG_ID = RunningRecord.LOG_ID;
+                TimeRecord.REC_TIMER_RUNNING = RunningRecord.REC_TIMER_RUNNING;
 
                 if (DateTime.TryParse(RunningRecord.START_TIMESTAMP, out var strTime))
                 {
@@ -118,6 +114,7 @@ public partial class DetailsPageViewModel : BaseViewModel
                 break;
             }
             default:
+            {
                 StopDateTimeEnabled = true;
                 _currentTime = DateTime.Now;
                 StartTime = new TimeSpan(_currentTime.Hour, _currentTime.Minute, _currentTime.Second);
@@ -130,6 +127,7 @@ public partial class DetailsPageViewModel : BaseViewModel
                 StopCancelBtnText = CancelText;
                 App.TimerService.StartTimer(DateTime.Now - StartingTime);
                 break;
+            }
         }
 
         StartBtnText = (StopDateTimeChecked && !StopDateTimeEnabled) ? ExistingRecordText : NewRecordText;
@@ -144,6 +142,7 @@ public partial class DetailsPageViewModel : BaseViewModel
 
         var result = App.DataService.AddRecord(new TimeRecord
         {
+            TIMERECORD_ID = Guid.NewGuid().ToString(),
             RECORD_TITLE = TimeRecord.RECORD_TITLE,
             START_TIMESTAMP = StartingTime.ToString(CultureInfo.InvariantCulture),
             STOP_TIMESTAMP = StoppingTime.ToString(CultureInfo.InvariantCulture),
