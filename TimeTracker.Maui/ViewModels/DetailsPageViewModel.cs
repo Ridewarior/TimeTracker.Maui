@@ -42,6 +42,9 @@ public partial class DetailsPageViewModel : BaseViewModel
     [ObservableProperty]
     private bool _startTimeEnabled = true;
 
+    [ObservableProperty]
+    private bool _enableStartBtn;
+
     private DateTime StartingTime => StartTimeStamp.Add(StartTime);
 
     private DateTime StoppingTime => StopTimeStamp.Add(StopTime);
@@ -52,14 +55,14 @@ public partial class DetailsPageViewModel : BaseViewModel
 
     public bool IsNewRec => TimeRecord.TIMERECORD_ID == Guid.Empty.ToString();
 
-    public bool EnableStartBtn => !TimeRecord.REC_TIMER_RUNNING;
-
     public DetailsPageViewModel(string recordId)
     {
         TimeRecord = new TimeRecord
         {
             TIMERECORD_ID = recordId
         };
+
+        EnableStartBtn = !TimerRunning;
 
         PageLoad();
     }
