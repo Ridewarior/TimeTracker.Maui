@@ -60,7 +60,7 @@ public class SQLiteDataService
         try
         {
             Init();
-            return _conn.Table<TimeRecord>().FirstOrDefault(x => x.TIMERECORD_ID == recordId);
+            return _conn.Table<TimeRecord>().FirstOrDefault(x => x.RECORD_ID == recordId);
         }
         catch (Exception e)
         {
@@ -72,37 +72,18 @@ public class SQLiteDataService
     }
 
     /// <summary>
-    /// Gets the Record Title of the given Record Id
+    /// Gets the highest run count for the resumed record
     /// </summary>
     /// <param name="recordId"></param>
-    /// <returns></returns>
-    public string GetParentRecordTitle(string recordId)
+    /// <returns>The highest run count for the resumed record</returns>
+    public int GetResumedRunCount(string recordId)
     {
         try
         {
             Init();
-            return _conn.Table<TimeRecord>().Where(x => x.TIMERECORD_ID == recordId).Select(x => x.RECORD_TITLE).FirstOrDefault();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Failed to retrieve Time Record Title. Inner exception: \n{e.Message} \n{e.InnerException}");
-            StatusMessage = "Failed to retrieve Time Record";
-        }
+            var queryResults = _conn.Table<TimeRecord>().Where(x => x.PARENT_ID == recordId).Select(x => x.RUN_COUNT).ToList();
 
-        return null;
-    }
-
-    /// <summary>
-    /// Gets the count of Time Records with the same Parent Record Id
-    /// </summary>
-    /// <param name="recordId"></param>
-    /// <returns></returns>
-    public int GetResumedRecordCount(string recordId)
-    {
-        try
-        {
-            Init();
-            return _conn.Table<TimeRecord>().Count(x => x.PARENT_RECORD_ID == recordId);
+            return !queryResults.Any() ? 1 : queryResults.Max();
         }
         catch (Exception e)
         {
@@ -112,7 +93,7 @@ public class SQLiteDataService
 
         return 0;
     }
-    
+
     /// <summary>
     /// Adds a new Time Record to the data source
     /// </summary>
@@ -158,7 +139,7 @@ public class SQLiteDataService
         try
         {
             Init();
-            return _conn.Table<TimeRecord>().Delete(x => x.TIMERECORD_ID == recordId);
+            return _conn.Table<TimeRecord>().Delete(x => x.RECORD_ID == recordId);
         }
         catch (Exception e)
         {

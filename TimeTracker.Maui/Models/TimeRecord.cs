@@ -9,7 +9,7 @@ public class TimeRecord
     /// Unique ID of the Time Record
     /// </summary>
     [PrimaryKey]
-    public string TIMERECORD_ID { get; set; }
+    public string RECORD_ID { get; set; }
 
     /// <summary>
     /// Title of the Time Record
@@ -48,13 +48,24 @@ public class TimeRecord
     public string LOG_ID { get; set; }
 
     /// <summary>
+    /// How many times this record has been run
+    /// </summary>
+    public int RUN_COUNT { get; set; }
+
+    /// <summary>
     /// Record Id of the parent the current record is resuming
     /// </summary>
-    public string PARENT_RECORD_ID { get; set; }
+    public string PARENT_ID { get; set; }
 
     /// <summary>
     /// True if the selected record has a running timer
     /// </summary>
     [Ignore]
     public bool REC_TIMER_RUNNING { get; set; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    [Ignore]
+    public bool SHOW_RUN_COUNT => RUN_COUNT > 1;
 }

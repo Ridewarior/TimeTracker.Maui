@@ -34,14 +34,24 @@
             <StackLayout Padding="30"
                          Spacing="20"
                          Margin="0,20,0,0">
-                <Grid ColumnDefinitions="*,*">
-                    <Entry Grid.Column="0"
+                <Grid ColumnDefinitions="60,800,*"
+                      ColumnSpacing="10">
+                    <HorizontalStackLayout Grid.Column="0"
+                                           HorizontalOptions="Start"
+                                           Margin="0,10,0,0">
+                        <Label FontAttributes="Bold"
+                               Text="Run#:"/>
+                        <Label FontAttributes="Bold"
+                               Text="{Binding TimeRecord.RUN_COUNT}"/>
+                    </HorizontalStackLayout>
+                    <Entry Grid.Column="1"
                            HorizontalOptions="Start"
                            Placeholder="Record Title"
                            Text="{Binding TimeRecord.RECORD_TITLE}"/>
                     <Label x:Name="LblElapsedTime"
-                           Grid.Column="1"
+                           Grid.Column="2"
                            HorizontalOptions="End"
+                           Margin="0,10,0,0"
                            Text="{Binding TimeRecord.TIME_ELAPSED}"
                            FontAttributes="Bold"/>
                 </Grid>

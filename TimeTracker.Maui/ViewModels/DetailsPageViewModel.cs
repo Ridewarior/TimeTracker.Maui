@@ -53,13 +53,13 @@ public partial class DetailsPageViewModel : BaseViewModel
 
     private DateTime _originalStartTime;
 
-    public bool IsNewRec => TimeRecord.TIMERECORD_ID == Guid.Empty.ToString();
+    public bool IsNewRec => TimeRecord.RECORD_ID == Guid.Empty.ToString();
 
     public DetailsPageViewModel(string recordId)
     {
         TimeRecord = new TimeRecord
         {
-            TIMERECORD_ID = recordId
+            RECORD_ID = recordId
         };
 
         EnableStartBtn = !TimerRunning;
@@ -78,9 +78,45 @@ public partial class DetailsPageViewModel : BaseViewModel
 
         switch (IsNewRec)
         {
+            case true when !TimerRunning:
+            {
+                StopDateTimeEnabled = true;
+                _currentTime = DateTime.Now;
+                StartTime = new TimeSpan(_currentTime.Hour, _currentTime.Minute, _currentTime.Second);
+                StartTimeStamp = _currentTime.Date;
+
+                StopTime = new TimeSpan(_currentTime.Hour, _currentTime.Minute, _currentTime.Second);
+                StopTimeStamp = _currentTime.Date;
+
+                _originalStartTime = StartingTime;
+                StopCancelBtnText = CancelText;
+                App.TimerService.StartTimer(DateTime.Now - StartingTime);
+                TimeRecord.RUN_COUNT = 1;
+                break;
+            }
+            case true when TimerRunning:
+            {
+                TimeRecord.RECORD_TITLE = RunningRecord.RECORD_TITLE;
+                TimeRecord.WORKITEM_TITLE = RunningRecord.WORKITEM_TITLE;
+                TimeRecord.CLIENT_NAME = RunningRecord.CLIENT_NAME;
+                TimeRecord.LOG_ID = RunningRecord.LOG_ID;
+                TimeRecord.REC_TIMER_RUNNING = RunningRecord.REC_TIMER_RUNNING;
+                TimeRecord.RUN_COUNT = RunningRecord.RUN_COUNT;
+
+                if (DateTime.TryParse(RunningRecord.START_TIMESTAMP, out var strTime))
+                {
+                    StartTime = new TimeSpan(strTime.Hour, strTime.Minute, strTime.Second);
+                    StartTimeStamp = strTime.Date;
+                }
+
+                StopDateTimeEnabled = false;
+                StopCancelBtnText = StopText;
+                StartTimeEnabled = false;
+                break;
+            }
             case false:
             {
-                TimeRecord = App.DataService.GetTimeRecord(TimeRecord.TIMERECORD_ID);
+                TimeRecord = App.DataService.GetTimeRecord(TimeRecord.RECORD_ID);
 
                 if (DateTime.TryParse(TimeRecord.START_TIMESTAMP, out var strTime) && DateTime.TryParse(TimeRecord.STOP_TIMESTAMP, out var stpTime))
                 {
@@ -97,40 +133,6 @@ public partial class DetailsPageViewModel : BaseViewModel
                 StartTimeEnabled = false;
                 break;
             }
-            case true when TimerRunning:
-            {
-                TimeRecord.RECORD_TITLE = RunningRecord.RECORD_TITLE;
-                TimeRecord.WORKITEM_TITLE = RunningRecord.WORKITEM_TITLE;
-                TimeRecord.CLIENT_NAME = RunningRecord.CLIENT_NAME;
-                TimeRecord.LOG_ID = RunningRecord.LOG_ID;
-                TimeRecord.REC_TIMER_RUNNING = RunningRecord.REC_TIMER_RUNNING;
-
-                if (DateTime.TryParse(RunningRecord.START_TIMESTAMP, out var strTime))
-                {
-                    StartTime = new TimeSpan(strTime.Hour, strTime.Minute, strTime.Second);
-                    StartTimeStamp = strTime.Date;
-                }
-
-                StopDateTimeEnabled = false;
-                StopCancelBtnText = StopText;
-                StartTimeEnabled = false;
-                break;
-            }
-            default:
-            {
-                StopDateTimeEnabled = true;
-                _currentTime = DateTime.Now;
-                StartTime = new TimeSpan(_currentTime.Hour, _currentTime.Minute, _currentTime.Second);
-                StartTimeStamp = _currentTime.Date;
-
-                StopTime = new TimeSpan(_currentTime.Hour, _currentTime.Minute, _currentTime.Second);
-                StopTimeStamp = _currentTime.Date;
-
-                _originalStartTime = StartingTime;
-                StopCancelBtnText = CancelText;
-                App.TimerService.StartTimer(DateTime.Now - StartingTime);
-                break;
-            }
         }
 
         StartBtnText = (StopDateTimeChecked && !StopDateTimeEnabled) ? ExistingRecordText : NewRecordText;
@@ -145,14 +147,15 @@ public partial class DetailsPageViewModel : BaseViewModel
 
         var result = App.DataService.AddRecord(new TimeRecord
         {
-            TIMERECORD_ID = Guid.NewGuid().ToString(),
+            RECORD_ID = Guid.NewGuid().ToString(),
             RECORD_TITLE = TimeRecord.RECORD_TITLE,
             START_TIMESTAMP = StartingTime.ToString(CultureInfo.InvariantCulture),
             STOP_TIMESTAMP = StoppingTime.ToString(CultureInfo.InvariantCulture),
             TIME_ELAPSED = TimeElapsed.ToString(CultureInfo.InvariantCulture),
             WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE,
             CLIENT_NAME = TimeRecord.CLIENT_NAME,
-            LOG_ID = TimeRecord.LOG_ID
+            LOG_ID = TimeRecord.LOG_ID,
+            RUN_COUNT = 1
         });
 
         return result != 0;
@@ -214,6 +217,12 @@ public partial class DetailsPageViewModel : BaseViewModel
                     return;
                 }
 
+                if (string.IsNullOrWhiteSpace(TimeRecord.RECORD_TITLE))
+                {
+                    await CurShell.DisplayAlert("Error", "A Record Title is required", "OK");
+                    return;
+                }
+
                 RunningRecord = new TimeRecord
                 {
                     RECORD_TITLE = TimeRecord.RECORD_TITLE,
@@ -221,6 +230,7 @@ public partial class DetailsPageViewModel : BaseViewModel
                     WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE,
                     CLIENT_NAME = TimeRecord.CLIENT_NAME,
                     LOG_ID = TimeRecord.LOG_ID,
+                    RUN_COUNT = TimeRecord.RUN_COUNT,
                     REC_TIMER_RUNNING = true
                 };
 
@@ -232,8 +242,16 @@ public partial class DetailsPageViewModel : BaseViewModel
                 if (StoppingTime <= StartingTime)
                 {
                     await CurShell.DisplayAlert("Error", "The Stop time cannot be the same or before the Start time.", "OK");
+                    return;
                 }
-                else if (CreatePreSetRecord())
+                
+                if (string.IsNullOrWhiteSpace(TimeRecord.RECORD_TITLE))
+                {
+                    await CurShell.DisplayAlert("Error", "A Record Title is required", "OK");
+                    return;
+                }
+                
+                if (CreatePreSetRecord())
                 {
                     await MopupInstance.PopAsync();
                 }
@@ -248,15 +266,16 @@ public partial class DetailsPageViewModel : BaseViewModel
             {
                 _currentTime = DateTime.Now;
 
-                if (!string.IsNullOrEmpty(TimeRecord.PARENT_RECORD_ID))
+                if (!string.IsNullOrEmpty(TimeRecord.PARENT_ID))
                 {
                     RunningRecord = new TimeRecord
                     {
+                        RECORD_TITLE = TimeRecord.RECORD_TITLE,
                         START_TIMESTAMP = _currentTime.ToString(CultureInfo.InvariantCulture),
                         WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE,
                         CLIENT_NAME = TimeRecord.CLIENT_NAME,
                         LOG_ID = TimeRecord.LOG_ID,
-                        PARENT_RECORD_ID = TimeRecord.PARENT_RECORD_ID,
+                        PARENT_ID = TimeRecord.PARENT_ID,
                         REC_TIMER_RUNNING = true
                     };
                 }
@@ -264,16 +283,17 @@ public partial class DetailsPageViewModel : BaseViewModel
                 {
                     RunningRecord = new TimeRecord
                     {
+                        RECORD_TITLE = TimeRecord.RECORD_TITLE,
                         START_TIMESTAMP = _currentTime.ToString(CultureInfo.InvariantCulture),
                         WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE,
                         CLIENT_NAME = TimeRecord.CLIENT_NAME,
                         LOG_ID = TimeRecord.LOG_ID,
-                        PARENT_RECORD_ID = TimeRecord.TIMERECORD_ID,
+                        PARENT_ID = TimeRecord.RECORD_ID,
                         REC_TIMER_RUNNING = true
                     };
                 }
 
-                RunningRecord.RECORD_TITLE = BuildResumedRecordTitle();
+                IncrementRunCount();
 
                 App.TimerService.StartTimer(DateTime.Now - _currentTime);
                 await MopupInstance.PopAsync();
@@ -311,7 +331,7 @@ public partial class DetailsPageViewModel : BaseViewModel
         
         if (confirm)
         {
-            var result = App.DataService.DeleteRecord(TimeRecord.TIMERECORD_ID);
+            var result = App.DataService.DeleteRecord(TimeRecord.RECORD_ID);
             if (result != 0)
             {
                 await CurShell.DisplayAlert("Success", "Record was deleted successfully", "OK");

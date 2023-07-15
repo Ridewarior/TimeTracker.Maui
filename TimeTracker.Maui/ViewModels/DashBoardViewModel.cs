@@ -10,7 +10,9 @@ namespace TimeTracker.Maui.ViewModels;
 
 public partial class DashBoardViewModel : BaseViewModel
 {
-    private const int TextMaxLength = 25;
+    private const int MinorTextMaxLength = 22;
+
+    private const int MajorTextMaxLength = 30;
 
     private const string StartTimerText = "Start Timer";
 
@@ -39,6 +41,9 @@ public partial class DashBoardViewModel : BaseViewModel
     [ObservableProperty]
     private Color _backgroundColor;
 
+    [ObservableProperty]
+    private bool _showRunCount;
+
     public DashBoardViewModel()
     {
         PageTitle = "TimeTracker: DashBoard";
@@ -61,6 +66,11 @@ public partial class DashBoardViewModel : BaseViewModel
             WorkItemTitle = TruncateLongText(RunningRecord.WORKITEM_TITLE);
             ClientName = TruncateLongText(RunningRecord.CLIENT_NAME);
             LogId = RunningRecord.LOG_ID;
+
+            if (RunningRecord.RUN_COUNT > 1)
+            {
+                ShowRunCount = true;
+            }
         }
         else
         {
@@ -81,27 +91,27 @@ public partial class DashBoardViewModel : BaseViewModel
         var workItemTitle = record.WORKITEM_TITLE;
         var clientName = record.CLIENT_NAME;
 
-        if (recordTitle?.Length > TextMaxLength)
+        if (recordTitle?.Length > MajorTextMaxLength)
         {
-            record.RECORD_TITLE = recordTitle[..TextMaxLength].TrimEnd() + "...";
+            record.RECORD_TITLE = recordTitle[..MajorTextMaxLength].TrimEnd() + "...";
         }
 
-        if (workItemTitle?.Length > TextMaxLength)
+        if (workItemTitle?.Length > MinorTextMaxLength)
         {
-            record.WORKITEM_TITLE = workItemTitle[..TextMaxLength].TrimEnd() + "...";
+            record.WORKITEM_TITLE = workItemTitle[..MinorTextMaxLength].TrimEnd() + "...";
         }
 
-        if (clientName?.Length > TextMaxLength)
+        if (clientName?.Length > MinorTextMaxLength)
         {
-            record.CLIENT_NAME = clientName[..TextMaxLength].TrimEnd() + "...";
+            record.CLIENT_NAME = clientName[..MinorTextMaxLength].TrimEnd() + "...";
         }
     }
 
     private static string TruncateLongText(string selectedText)
     {
-        if (selectedText?.Length > TextMaxLength)
+        if (selectedText?.Length > MinorTextMaxLength)
         {
-            return selectedText[..TextMaxLength].TrimEnd() + "...";
+            return selectedText[..MinorTextMaxLength].TrimEnd() + "...";
         }
 
         return selectedText;
@@ -180,26 +190,27 @@ public partial class DashBoardViewModel : BaseViewModel
         }
     }
 
-    [RelayCommand]
-    public async Task DeleteRecord(string recordId)
-    {
-        if (string.IsNullOrWhiteSpace(recordId))
-        {
-            await CurShell.DisplayAlert("Invalid Record", "Please try again", "OK");
-            return;
-        }
+    // Not ready, currently waiting on context menu options
+    //[RelayCommand]
+    //public async Task DeleteRecord(string recordId)
+    //{
+    //    if (string.IsNullOrWhiteSpace(recordId))
+    //    {
+    //        await CurShell.DisplayAlert("Invalid Record", "Please try again", "OK");
+    //        return;
+    //    }
 
-        var result = App.DataService.DeleteRecord(recordId);
-        if (result == 0)
-        {
-            await CurShell.DisplayAlert("Invalid Data", "Please insert valid data", "OK0");
-        }
-        else
-        {
-            await CurShell.DisplayAlert("Delete Successful", "Record removed successfully", "OK");
-            await GetTimeRecords();
-        }
-    }
+    //    var result = App.DataService.DeleteRecord(recordId);
+    //    if (result == 0)
+    //    {
+    //        await CurShell.DisplayAlert("Invalid Data", "Please insert valid data", "OK0");
+    //    }
+    //    else
+    //    {
+    //        await CurShell.DisplayAlert("Delete Successful", "Record removed successfully", "OK");
+    //        await GetTimeRecords();
+    //    }
+    //}
 
     [RelayCommand]
     public async Task GoToRecordDetails(string recordId)

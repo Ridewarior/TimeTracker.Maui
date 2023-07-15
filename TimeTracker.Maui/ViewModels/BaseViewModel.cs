@@ -28,6 +28,9 @@ public partial class BaseViewModel : ObservableObject
     [ObservableProperty]
     private string _timeElapsed;
 
+    [ObservableProperty]
+    private string _runCount;
+
     public static TimeRecord RunningRecord { get; set; } = new();
 
     public bool IsLoaded => !IsLoading;
@@ -57,7 +60,7 @@ public partial class BaseViewModel : ObservableObject
         }
 
         App.TimerService.StopTimer();
-        RunningRecord.TIMERECORD_ID = Guid.NewGuid().ToString();
+        RunningRecord.RECORD_ID = Guid.NewGuid().ToString();
         RunningRecord.STOP_TIMESTAMP = DateTime.Now.ToString(CultureInfo.InvariantCulture);
         RunningRecord.TIME_ELAPSED = TimeElapsed;
         RunningRecord.REC_TIMER_RUNNING = false;
@@ -66,17 +69,17 @@ public partial class BaseViewModel : ObservableObject
         return result != 0;
     }
 
-    public static void ResetRunningRecord()
+    public void ResetRunningRecord()
     {
         RunningRecord = new TimeRecord();
+        RunCount = string.Empty;
     }
 
-    public static string BuildResumedRecordTitle()
+    public void IncrementRunCount()
     {
-        var originalRecordTitle = App.DataService.GetParentRecordTitle(RunningRecord.PARENT_RECORD_ID);
-        var resumedRecordCount = App.DataService.GetResumedRecordCount(RunningRecord.PARENT_RECORD_ID);
-        // always +2 the value returned since the original record will be uncounted
-        var newRecordTitle = $"({resumedRecordCount + 2}) " + originalRecordTitle;
-        return newRecordTitle;
+        var resumedRunCount = App.DataService.GetResumedRunCount(RunningRecord.PARENT_ID) + 1;
+
+        RunningRecord.RUN_COUNT = resumedRunCount;
+        RunCount = $"({resumedRunCount})";
     }
 }
