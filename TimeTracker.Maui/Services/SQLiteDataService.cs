@@ -98,7 +98,7 @@ public class SQLiteDataService
     /// Adds a new Time Record to the data source
     /// </summary>
     /// <param name="record"></param>
-    /// <exception cref="NotImplementedException"></exception>
+    /// <returns>Status code</returns>
     public int AddRecord(TimeRecord record)
     {
         try
@@ -130,10 +130,31 @@ public class SQLiteDataService
     }
 
     /// <summary>
+    /// Updates the TimeRecord
+    /// </summary>
+    /// <param name="record"></param>
+    /// <returns>Status code</returns>
+    public int UpdateRecord(TimeRecord record)
+    {
+        try
+        {
+            Init();
+            return _conn.Update(record);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"Failed to update record. Inner exception: \n{e.Message} \n{e.InnerException}");
+            StatusMessage = "Failed to update record";
+        }
+
+        return 0;
+    }
+
+    /// <summary>
     /// Deletes a single Time Record from the data source
     /// </summary>
     /// <param name="recordId"></param>
-    /// <returns>Returns that Delete result</returns>
+    /// <returns>Status code</returns>
     public int DeleteRecord(string recordId)
     {
         try

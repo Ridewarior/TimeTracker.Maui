@@ -44,10 +44,12 @@
                         <Label FontAttributes="Bold"
                                Text="{Binding TimeRecord.RUN_COUNT}"/>
                     </HorizontalStackLayout>
-                    <Entry Grid.Column="1"
+                    <Entry x:Name="EntRecTitle"
+                           Grid.Column="1"
                            HorizontalOptions="Start"
                            Placeholder="Record Title"
-                           Text="{Binding TimeRecord.RECORD_TITLE}"/>
+                           Text="{Binding TimeRecord.RECORD_TITLE}"
+                           Unfocused="CheckEntries_OnUnfocused"/>
                     <Label x:Name="LblElapsedTime"
                            Grid.Column="2"
                            HorizontalOptions="End"
@@ -79,14 +81,14 @@
                                                Spacing="12">
                             <TimePicker x:Name="TpStartTime"
                                         Time="{Binding StartTime}"
-                                        PropertyChanged="StartingTime_OnPropertyChanged"
+                                        PropertyChanged="DateTime_OnPropertyChanged"
                                         />
                             <DatePicker x:Name="DpStartDate"
                                         Format="MM/dd"
                                         Margin="0,0,0,10"
                                         Date="{Binding StartTimeStamp}"
                                         IsEnabled="{Binding StopDateTimeChecked}"
-                                        PropertyChanged="StartingTime_OnPropertyChanged"/>
+                                        PropertyChanged="DateTime_OnPropertyChanged"/>
                         </HorizontalStackLayout>
                     </StackLayout>
                 </Border>
@@ -105,12 +107,16 @@
                                IsEnabled="{Binding StopDateTimeChecked}"/>
                         <HorizontalStackLayout HorizontalOptions="Center"
                                                Spacing="12">
-                            <TimePicker Time="{Binding StopTime}"
-                                        IsEnabled="{Binding StopDateTimeChecked}"/>
-                            <DatePicker Format="MM/dd"
+                            <TimePicker x:Name="TpStopTime"
+                                        Time="{Binding StopTime}"
+                                        IsEnabled="{Binding StopDateTimeChecked}"
+                                        PropertyChanged="DateTime_OnPropertyChanged"/>
+                            <DatePicker x:Name="DpStopDate"
+                                        Format="MM/dd"
                                         Margin="0,0,0,10"
                                         Date="{Binding StopTimeStamp}"
-                                        IsEnabled="{Binding StopDateTimeChecked}"/>
+                                        IsEnabled="{Binding StopDateTimeChecked}"
+                                        PropertyChanged="DateTime_OnPropertyChanged"/>
                         </HorizontalStackLayout>
                     </StackLayout>
                 </Border>
@@ -138,15 +144,21 @@
                            FontAttributes="Bold"
                            LineBreakMode="NoWrap"
                            Padding="80,0,78,0"/>
-                    <Entry Grid.Row="1"
+                    <Entry x:Name="EntWiTitle"
+                           Grid.Row="1"
                            Grid.Column="0"
-                           Text="{Binding TimeRecord.WORKITEM_TITLE}"/>
-                    <Entry Grid.Row="1"
+                           Text="{Binding TimeRecord.WORKITEM_TITLE}"
+                           Unfocused="CheckEntries_OnUnfocused"/>
+                    <Entry x:Name="EntClientName"
+                           Grid.Row="1"
                            Grid.Column="1"
-                           Text="{Binding TimeRecord.CLIENT_NAME}"/>
-                    <Entry Grid.Row="1"
+                           Text="{Binding TimeRecord.CLIENT_NAME}"
+                           Unfocused="CheckEntries_OnUnfocused"/>
+                    <Entry x:Name="EntLogId"
+                           Grid.Row="1"
                            Grid.Column="2"
-                           Text="{Binding TimeRecord.LOG_ID}"/>
+                           Text="{Binding TimeRecord.LOG_ID}"
+                           Unfocused="CheckEntries_OnUnfocused"/>
                 </Grid>
 
                 <HorizontalStackLayout HorizontalOptions="Center"

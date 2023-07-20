@@ -126,6 +126,11 @@ public partial class DashBoardViewModel : BaseViewModel
         {
             App.TimerService.StopTimer();
         }
+
+        if (RecordModified)
+        {
+            App.TimerService.ResyncTimers();
+        }
     }
 
     #endregion

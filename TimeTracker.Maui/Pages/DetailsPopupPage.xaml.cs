@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using TimeTracker.Maui.Enums;
 using TimeTracker.Maui.ViewModels;
 
 namespace TimeTracker.Maui.Pages;
@@ -19,18 +20,61 @@ public partial class DetailsPopupPage
         }
     }
 
-    private async void StartingTime_OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private async void Switch_OnToggled(object sender, ToggledEventArgs e)
     {
-        if (e.PropertyName is not (nameof(TpStartTime.Time) or nameof(DpStartDate.Date)))
+        await _viewModel.EnableDisableStopDate();
+    }
+
+    private async void DateTime_OnPropertyChanged(object sender, PropertyChangedEventArgs args)
+    {
+        if (args.PropertyName is not nameof(TimePicker.Time) or nameof(DatePicker.Date))
         {
             return;
         }
 
-        await _viewModel.AdjustStartTime();
+        var controlName = ((Element)sender).StyleId;
+
+        switch (controlName)
+        {
+            case nameof(TpStartTime) or nameof(DpStartDate):
+            {
+                await _viewModel.FieldsModified(UpdateableControls.StartingTime);
+                break;
+            }
+            case nameof(TpStopTime) or nameof(DpStopDate):
+            {
+                await _viewModel.FieldsModified(UpdateableControls.StoppingTime);
+                break;
+            }
+        }
     }
 
-    private async void Switch_OnToggled(object sender, ToggledEventArgs e)
+    private async void CheckEntries_OnUnfocused(object sender, FocusEventArgs args)
     {
-        await _viewModel.EnableDisableStopDate();
+        var controlName = ((InputView)sender).StyleId;
+
+        switch (controlName)
+        {
+            case nameof(EntRecTitle):
+            {
+                await _viewModel.FieldsModified(UpdateableControls.RecTitle);
+                break;
+            }
+            case nameof(EntWiTitle):
+            {
+                await _viewModel.FieldsModified(UpdateableControls.WorkItemTitle);
+                break;
+            }
+            case nameof(EntClientName):
+            {
+                await _viewModel.FieldsModified(UpdateableControls.ClientName);
+                break;
+            }
+            case nameof(EntLogId):
+            {
+                await _viewModel.FieldsModified(UpdateableControls.LogId);
+                break;
+            }
+        }
     }
 }

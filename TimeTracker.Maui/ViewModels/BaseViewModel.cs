@@ -41,6 +41,8 @@ public partial class BaseViewModel : ObservableObject
 
     public IPopupNavigation MopupInstance = MopupService.Instance;
 
+    public static bool RecordModified;
+
     public BaseViewModel()
     {
         TimeElapsed = "00:00:00";

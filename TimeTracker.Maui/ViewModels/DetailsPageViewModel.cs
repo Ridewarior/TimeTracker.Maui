@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Globalization;
+using TimeTracker.Maui.Enums;
 using TimeTracker.Maui.Models;
 
 namespace TimeTracker.Maui.ViewModels;
@@ -10,6 +11,7 @@ public partial class DetailsPageViewModel : BaseViewModel
     private const string ExistingRecordText = "Resume";
     private const string NewRecordText = "Start";
     private const string CreateRecordText = "Create";
+    private const string UpdateRecordText = "Update";
     private const string CancelText = "Cancel";
     private const string StopText = "Stop";
     private const string EnableDateTimeText = "Show Stop Date";
@@ -52,6 +54,10 @@ public partial class DetailsPageViewModel : BaseViewModel
     private DateTime _currentTime;
 
     private DateTime _originalStartTime;
+
+    private DateTime _originalStopTime;
+
+    private TimeRecord _originalTimeRecord;
 
     public bool IsNewRec => TimeRecord.RECORD_ID == Guid.Empty.ToString();
 
@@ -97,10 +103,12 @@ public partial class DetailsPageViewModel : BaseViewModel
             case true when TimerRunning:
             {
                 TimeRecord.RECORD_TITLE = RunningRecord.RECORD_TITLE;
+                TimeRecord.START_TIMESTAMP = RunningRecord.START_TIMESTAMP;
                 TimeRecord.WORKITEM_TITLE = RunningRecord.WORKITEM_TITLE;
                 TimeRecord.CLIENT_NAME = RunningRecord.CLIENT_NAME;
                 TimeRecord.LOG_ID = RunningRecord.LOG_ID;
                 TimeRecord.REC_TIMER_RUNNING = RunningRecord.REC_TIMER_RUNNING;
+                TimeRecord.PARENT_ID = RunningRecord.PARENT_ID;
                 TimeRecord.RUN_COUNT = RunningRecord.RUN_COUNT;
 
                 if (DateTime.TryParse(RunningRecord.START_TIMESTAMP, out var strTime))
@@ -109,9 +117,23 @@ public partial class DetailsPageViewModel : BaseViewModel
                     StartTimeStamp = strTime.Date;
                 }
 
+                _originalStartTime = StartingTime;
                 StopDateTimeEnabled = false;
                 StopCancelBtnText = StopText;
                 StartTimeEnabled = false;
+
+                _originalTimeRecord = new TimeRecord
+                {
+                    RECORD_ID = TimeRecord.RECORD_ID,
+                    RECORD_TITLE = TimeRecord.RECORD_TITLE,
+                    START_TIMESTAMP = TimeRecord.START_TIMESTAMP,
+                    WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE,
+                    CLIENT_NAME = TimeRecord.CLIENT_NAME,
+                    LOG_ID = TimeRecord.LOG_ID,
+                    RUN_COUNT = TimeRecord.RUN_COUNT,
+                    PARENT_ID = TimeRecord.PARENT_ID,
+                    REC_TIMER_RUNNING = TimeRecord.REC_TIMER_RUNNING
+                };
                 break;
             }
             case false:
@@ -127,10 +149,27 @@ public partial class DetailsPageViewModel : BaseViewModel
                     StopTimeStamp = stpTime.Date;
                 }
 
+                _originalStartTime = StartingTime;
+                _originalStopTime = StoppingTime;
                 StopDateTimeChecked = true;
                 StopDateTimeEnabled = false;
                 StopCancelBtnText = CancelText;
                 StartTimeEnabled = false;
+
+                _originalTimeRecord = new TimeRecord
+                {
+                    RECORD_ID = TimeRecord.RECORD_ID,
+                    RECORD_TITLE = TimeRecord.RECORD_TITLE,
+                    START_TIMESTAMP = TimeRecord.START_TIMESTAMP,
+                    STOP_TIMESTAMP = TimeRecord.STOP_TIMESTAMP,
+                    TIME_ELAPSED = TimeRecord.TIME_ELAPSED,
+                    WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE,
+                    CLIENT_NAME = TimeRecord.CLIENT_NAME,
+                    LOG_ID = TimeRecord.LOG_ID,
+                    RUN_COUNT = TimeRecord.RUN_COUNT,
+                    PARENT_ID = TimeRecord.PARENT_ID,
+                    REC_TIMER_RUNNING = TimeRecord.REC_TIMER_RUNNING
+                };
                 break;
             }
         }
@@ -161,9 +200,7 @@ public partial class DetailsPageViewModel : BaseViewModel
         return result != 0;
     }
 
-    #endregion
-
-    public async Task AdjustStartTime()
+    private async Task AdjustLiveTimer()
     {
         if (!StopDateTimeChecked)
         {
@@ -180,8 +217,143 @@ public partial class DetailsPageViewModel : BaseViewModel
                 _originalStartTime = StartingTime;
 
                 App.TimerService.AdjustTimer(DateTime.Now - StartingTime, pullBack);
+
+                TimeRecord.START_TIMESTAMP = StartingTime.ToString(CultureInfo.InvariantCulture);
             }
         }
+    }
+
+    private async Task AdjustTimer()
+    {
+        if (StoppingTime < StartingTime)
+        {
+            await CurShell.DisplayAlert("Error", "Stopping time cannot be before the Starting time", "OK");
+            StopTimeStamp = _originalStopTime.Date;
+            StopTime = new TimeSpan(_originalStopTime.Hour, _originalStopTime.Minute, _originalStopTime.Second);
+            return;
+        }
+
+        TimeElapsed = App.TimerService.GetPresetTime(StartingTime, StoppingTime).ToString();
+        
+        TimeRecord.START_TIMESTAMP = StartingTime.ToString(CultureInfo.InvariantCulture);
+        TimeRecord.STOP_TIMESTAMP = StoppingTime.ToString(CultureInfo.InvariantCulture);
+        TimeRecord.TIME_ELAPSED = TimeElapsed;
+    }
+
+    private void CheckModifiedFields()
+    {
+        // check if values were returned to original values
+        if (CompareRecords())
+        {
+            RecordModified = false;
+            StartBtnText = (StopDateTimeChecked && !StopDateTimeEnabled) ? ExistingRecordText : NewRecordText;
+            EnableStartBtn = !TimerRunning;
+        }
+        else
+        {
+            StartBtnText = UpdateRecordText;
+            EnableStartBtn = true;
+        }
+    }
+
+    private bool CompareRecords()
+    {
+        return TimeRecord.RECORD_TITLE == _originalTimeRecord.RECORD_TITLE && TimeRecord.START_TIMESTAMP == _originalTimeRecord.START_TIMESTAMP && TimeRecord.STOP_TIMESTAMP == _originalTimeRecord.STOP_TIMESTAMP 
+               && TimeRecord.TIME_ELAPSED == _originalTimeRecord.TIME_ELAPSED && TimeRecord.WORKITEM_TITLE == _originalTimeRecord.WORKITEM_TITLE && TimeRecord.CLIENT_NAME == _originalTimeRecord.CLIENT_NAME 
+               && TimeRecord.LOG_ID == _originalTimeRecord.LOG_ID;
+    }
+
+    #endregion
+
+    public async Task FieldsModified(UpdateableControls modifiedControl)
+    {
+        if (IsNewRec && !TimeRecord.REC_TIMER_RUNNING)
+        {
+            return;
+        }
+
+        switch (modifiedControl)
+        {
+            case UpdateableControls.RecTitle:
+            {
+                if (TimeRecord.RECORD_TITLE != _originalTimeRecord.RECORD_TITLE)
+                {
+                    RecordModified = true;
+                }
+                break;
+            }
+            case UpdateableControls.StartingTime when IsNewRec && TimeRecord.REC_TIMER_RUNNING:
+            {
+                if (StartingTime != _originalStartTime)
+                {
+                    var strippedDate = _originalStartTime.Date;
+                    var strippedStartTime = strippedDate.Add(new TimeSpan(_originalStartTime.Hour, _originalStartTime.Minute, 0));
+
+                    if (StartingTime != strippedStartTime)
+                    {
+                        RecordModified = true;
+                        await AdjustLiveTimer();
+                    }
+                }
+                break;
+            }
+            case UpdateableControls.StartingTime when !IsNewRec:
+            {
+                if (StartingTime != _originalStartTime)
+                {
+                    var strippedDate = _originalStartTime.Date;
+                    var strippedStartTime = strippedDate.Add(new TimeSpan(_originalStartTime.Hour, _originalStartTime.Minute, 0));
+
+                    if (StartingTime != strippedStartTime)
+                    {
+                        RecordModified = true;
+                        await AdjustTimer();
+                    }
+                }
+                break;
+            }
+            case UpdateableControls.StoppingTime:
+            {
+                if (StoppingTime != _originalStopTime)
+                {
+                    var strippedDate = _originalStopTime.Date;
+                    var strippedStopTime = strippedDate.Add(new TimeSpan(_originalStopTime.Hour, _originalStopTime.Minute, 0));
+
+                    if (StoppingTime != strippedStopTime)
+                    {
+                        RecordModified = true;
+                        await AdjustTimer();
+                    }
+                }
+                break;
+            }
+            case UpdateableControls.WorkItemTitle:
+            {
+                if (TimeRecord.WORKITEM_TITLE != _originalTimeRecord.WORKITEM_TITLE)
+                {
+                    RecordModified = true;
+                }
+                break;
+            }
+            case UpdateableControls.ClientName:
+            {
+                if (TimeRecord.CLIENT_NAME != _originalTimeRecord.CLIENT_NAME)
+                {
+                    RecordModified = true;
+                }
+                break;
+            }
+            case UpdateableControls.LogId:
+            {
+                if (TimeRecord.LOG_ID != _originalTimeRecord.LOG_ID)
+                {
+                    RecordModified = true;
+                }
+                break;
+            }
+        }
+
+        CheckModifiedFields();
     }
 
     [RelayCommand]
@@ -192,15 +364,19 @@ public partial class DetailsPageViewModel : BaseViewModel
         switch (StopDateTimeChecked)
         {
             case true when StopDateTimeEnabled:
+            {
                 StartBtnText = CreateRecordText;
                 EnableDisableDateTimeTxt = DisableDateTimeText;
                 await CurShell.DisplayAlert("Setting a Stop Time", "Setting the stop time creates a new record using the time between those dates", "OK");
                 break;
+            }
             case false:
+            {
                 StartBtnText = NewRecordText;
                 EnableDisableDateTimeTxt = EnableDateTimeText;
-                await AdjustStartTime();
+                await AdjustLiveTimer();
                 break;
+            }
         }
     }
 
@@ -209,7 +385,7 @@ public partial class DetailsPageViewModel : BaseViewModel
     {
         switch (IsNewRec)
         {
-            case true when !StopDateTimeChecked:
+            case true when !StopDateTimeChecked && !RecordModified:
             {
                 if (StartingTime > _currentTime)
                 {
@@ -233,8 +409,6 @@ public partial class DetailsPageViewModel : BaseViewModel
                     RUN_COUNT = TimeRecord.RUN_COUNT,
                     REC_TIMER_RUNNING = true
                 };
-
-                await MopupInstance.PopAsync();
                 break;
             }
             case true when StopDateTimeChecked:
@@ -253,13 +427,30 @@ public partial class DetailsPageViewModel : BaseViewModel
                 
                 if (CreatePreSetRecord())
                 {
-                    await MopupInstance.PopAsync();
+                    break;
                 }
-                else
+                
+                await CurShell.DisplayAlert("Error", "An error occurred while creating the Time Record, Please try again", "OK");
+                break;
+            }
+            case true when TimeRecord.REC_TIMER_RUNNING:
+            {
+                RunningRecord.RECORD_TITLE = TimeRecord.RECORD_TITLE;
+                RunningRecord.START_TIMESTAMP = TimeRecord.START_TIMESTAMP;
+                RunningRecord.WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE;
+                RunningRecord.CLIENT_NAME = TimeRecord.CLIENT_NAME;
+                RunningRecord.LOG_ID = TimeRecord.LOG_ID;
+                break;
+            }
+            case false when RecordModified:
+            {
+                if (App.DataService.UpdateRecord(TimeRecord) == 0)
                 {
-                    await CurShell.DisplayAlert("Error", "An error occurred while creating the Time Record, Please try again", "OK");
+                    await CurShell.DisplayAlert("Error", "An error occurred while trying to update this record, please try again", "OK)");
+                    return;
                 }
 
+                await CurShell.DisplayAlert("Success", "Record was updated successfully", "OK");
                 break;
             }
             case false:
@@ -294,12 +485,13 @@ public partial class DetailsPageViewModel : BaseViewModel
                 }
 
                 IncrementRunCount();
-
                 App.TimerService.StartTimer(DateTime.Now - _currentTime);
-                await MopupInstance.PopAsync();
                 break;
             }
         }
+
+        RecordModified = false;
+        await MopupInstance.PopAsync();
     }
 
     [RelayCommand]
@@ -311,17 +503,16 @@ public partial class DetailsPageViewModel : BaseViewModel
             {
                 await CurShell.DisplayAlert("Success", "Record was saved successfully", "OK");
                 ResetRunningRecord();
-                await MopupInstance.PopAsync();
             }
             else
             {
                 await CurShell.DisplayAlert("Error", "An error occurred while trying to stop and save this record, please try again", "OK");
+                return;
             }
         }
-        else
-        {
-            await MopupInstance.PopAsync();
-        }
+
+        RecordModified = false;
+        await MopupInstance.PopAsync();
     }
 
     [RelayCommand]
@@ -332,15 +523,19 @@ public partial class DetailsPageViewModel : BaseViewModel
         if (confirm)
         {
             var result = App.DataService.DeleteRecord(TimeRecord.RECORD_ID);
+
             if (result != 0)
             {
                 await CurShell.DisplayAlert("Success", "Record was deleted successfully", "OK");
-                await MopupInstance.PopAsync();
             }
             else
             {
                 await CurShell.DisplayAlert("Error", "An error occurred while trying to delete this record, please try again.", "OK");
+                return;
             }
+
+            RecordModified = false;
+            await MopupInstance.PopAsync();
         }
 
     }
