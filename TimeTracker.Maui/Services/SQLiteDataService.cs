@@ -130,7 +130,7 @@ public class SQLiteDataService
     }
 
     /// <summary>
-    /// Updates the TimeRecord
+    /// Updates a single TimeRecord
     /// </summary>
     /// <param name="record"></param>
     /// <returns>Status code</returns>
@@ -148,6 +148,58 @@ public class SQLiteDataService
         }
 
         return 0;
+    }
+
+    public void UpdateAllRuns(string recordId, Dictionary<string, string>updatedValues)
+    {
+        if (!updatedValues.Any())
+        {
+            return;
+        }
+
+        try
+        {
+            Init();
+            
+            var recordsList = _conn.Table<TimeRecord>().Where(x => x.RECORD_ID == recordId || x.PARENT_ID == recordId).ToList();
+
+            foreach (var record in recordsList)
+            {
+                foreach (var newValue in updatedValues)
+                {
+                    switch (newValue.Key)
+                    {
+                        case nameof(TimeRecord.RECORD_TITLE):
+                        {
+                            record.RECORD_TITLE = newValue.Value;
+                            break;
+                        }
+                        case nameof(TimeRecord.WORKITEM_TITLE):
+                        {
+                            record.WORKITEM_TITLE = newValue.Value;
+                            break;
+                        }
+                        case nameof(TimeRecord.CLIENT_NAME):
+                        {
+                            record.CLIENT_NAME = newValue.Value;
+                            break;
+                        }
+                        case nameof(TimeRecord.LOG_ID):
+                        {
+                            record.LOG_ID = newValue.Value;
+                            break;
+                        }
+                    }
+                }
+
+                UpdateRecord(record);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"Failed to update time records. Inner exception \n{e.Message} \n{e.InnerException}");
+            StatusMessage = "Failed to update time records";
+        }
     }
 
     /// <summary>

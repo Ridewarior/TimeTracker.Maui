@@ -59,6 +59,18 @@ public partial class DetailsPageViewModel : BaseViewModel
 
     private TimeRecord _originalTimeRecord;
 
+    private bool _recTitleUpdated;
+    
+    private bool _startTimeUpdated;
+
+    private bool _stopTimeUpdated;
+
+    private bool _wiTitleUpdated;
+
+    private bool _clientNameUpdated;
+
+    private bool _logIdUpdated;
+
     public bool IsNewRec => TimeRecord.RECORD_ID == Guid.Empty.ToString();
 
     public DetailsPageViewModel(string recordId)
@@ -243,9 +255,10 @@ public partial class DetailsPageViewModel : BaseViewModel
     private void CheckModifiedFields()
     {
         // check if values were returned to original values
-        if (CompareRecords())
+        if (RecordsMatch())
         {
-            RecordModified = false;
+            ResetUpdateProperties();
+            
             StartBtnText = (StopDateTimeChecked && !StopDateTimeEnabled) ? ExistingRecordText : NewRecordText;
             EnableStartBtn = !TimerRunning;
         }
@@ -256,11 +269,174 @@ public partial class DetailsPageViewModel : BaseViewModel
         }
     }
 
-    private bool CompareRecords()
+    private bool RecordsMatch()
     {
-        return TimeRecord.RECORD_TITLE == _originalTimeRecord.RECORD_TITLE && TimeRecord.START_TIMESTAMP == _originalTimeRecord.START_TIMESTAMP && TimeRecord.STOP_TIMESTAMP == _originalTimeRecord.STOP_TIMESTAMP 
-               && TimeRecord.TIME_ELAPSED == _originalTimeRecord.TIME_ELAPSED && TimeRecord.WORKITEM_TITLE == _originalTimeRecord.WORKITEM_TITLE && TimeRecord.CLIENT_NAME == _originalTimeRecord.CLIENT_NAME 
-               && TimeRecord.LOG_ID == _originalTimeRecord.LOG_ID;
+        if (TimeRecord.RECORD_TITLE == _originalTimeRecord.RECORD_TITLE)
+        {
+            _recTitleUpdated = false;
+        }
+
+        if (TimeRecord.START_TIMESTAMP == _originalTimeRecord.START_TIMESTAMP)
+        {
+            _startTimeUpdated = false;
+        }
+
+        if (TimeRecord.STOP_TIMESTAMP == _originalTimeRecord.STOP_TIMESTAMP)
+        {
+            _stopTimeUpdated = false;
+        }
+
+        if (TimeRecord.WORKITEM_TITLE == _originalTimeRecord.WORKITEM_TITLE)
+        {
+            _wiTitleUpdated = false;
+        }
+
+        if (TimeRecord.CLIENT_NAME == _originalTimeRecord.CLIENT_NAME)
+        {
+            _clientNameUpdated = false;
+        }
+
+        if (TimeRecord.LOG_ID == _originalTimeRecord.LOG_ID)
+        {
+            _logIdUpdated = false;
+        }
+
+        return (!_recTitleUpdated && !_startTimeUpdated && !_stopTimeUpdated && !_wiTitleUpdated && !_clientNameUpdated && !_logIdUpdated);
+    }
+
+    private void ResetUpdateProperties()
+    {
+        RecordModified = false;
+        _recTitleUpdated = false;
+        _startTimeUpdated = false;
+        _stopTimeUpdated = false;
+        _wiTitleUpdated = false;
+        _clientNameUpdated = false;
+        _logIdUpdated = false;
+    }
+
+    private async Task UpdateTimeRecords(bool updateExisting)
+    {
+        var updateAll = false;
+
+        if (TimeRecord.RUN_COUNT > 1)
+        {
+            if (!_recTitleUpdated)
+            {
+                var selectedOption = await CurShell.DisplayActionSheet("Update all runs?", "Cancel", null, "All", "Just this");
+
+                if (string.IsNullOrWhiteSpace(selectedOption))
+                {
+                    return;
+                }
+
+                if (selectedOption == "All")
+                {
+                    updateAll = true;
+                }
+            }
+            else
+            {
+                var selectedOption = await CurShell.DisplayAlert("Warning", "You must update all previous records when changing the record title", "Continue", "Cancel");
+
+                if (!selectedOption)
+                {
+                    return;
+                }
+
+                updateAll = true;
+            }
+        }
+
+        switch (updateExisting)
+        {
+            case true when !updateAll:
+            {
+                if (App.DataService.UpdateRecord(TimeRecord) == 0)
+                {
+                    await CurShell.DisplayAlert("Error", "An error occurred while trying to update this record, please try again", "OK");
+                    return;
+                }
+
+                await CurShell.DisplayAlert("Success", "Record was updated successfully", "OK");
+                break;
+            }
+            case true when updateAll:
+            {
+                if (App.DataService.UpdateRecord(TimeRecord) == 0)
+                {
+                    await CurShell.DisplayAlert("Error", "An error occurred while trying to update this record, please try again", "OK");
+                    return;
+                }
+
+                var newValues = new Dictionary<string, string>();
+
+                if (_recTitleUpdated)
+                {
+                    newValues.Add(nameof(Models.TimeRecord.RECORD_TITLE), TimeRecord.RECORD_TITLE);
+                }
+
+                if (_wiTitleUpdated)
+                {
+                    newValues.Add(nameof(Models.TimeRecord.WORKITEM_TITLE), TimeRecord.WORKITEM_TITLE);
+                }
+
+                if (_clientNameUpdated)
+                {
+                    newValues.Add(nameof(Models.TimeRecord.CLIENT_NAME), TimeRecord.CLIENT_NAME);
+                }
+
+                if (_logIdUpdated)
+                {
+                    newValues.Add(nameof(Models.TimeRecord.LOG_ID), TimeRecord.LOG_ID);
+                }
+
+                App.DataService.UpdateAllRuns(TimeRecord.PARENT_ID, newValues);
+                break;
+            }
+            case false when !updateAll:
+            {
+                RunningRecord.RECORD_TITLE = TimeRecord.RECORD_TITLE;
+                RunningRecord.START_TIMESTAMP = TimeRecord.START_TIMESTAMP;
+                RunningRecord.WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE;
+                RunningRecord.CLIENT_NAME = TimeRecord.CLIENT_NAME;
+                RunningRecord.LOG_ID = TimeRecord.LOG_ID;
+                break;
+            }
+            case false when updateAll:
+            {
+                RunningRecord.RECORD_TITLE = TimeRecord.RECORD_TITLE;
+                RunningRecord.START_TIMESTAMP = TimeRecord.START_TIMESTAMP;
+                RunningRecord.WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE;
+                RunningRecord.CLIENT_NAME = TimeRecord.CLIENT_NAME;
+                RunningRecord.LOG_ID = TimeRecord.LOG_ID;
+
+                var newValues = new Dictionary<string, string>();
+
+                if (_recTitleUpdated)
+                {
+                    newValues.Add(nameof(Models.TimeRecord.RECORD_TITLE), RunningRecord.RECORD_TITLE);
+                }
+
+                if (_wiTitleUpdated)
+                {
+                    newValues.Add(nameof(Models.TimeRecord.WORKITEM_TITLE), RunningRecord.WORKITEM_TITLE);
+                }
+
+                if (_clientNameUpdated)
+                {
+                    newValues.Add(nameof(Models.TimeRecord.CLIENT_NAME), RunningRecord.CLIENT_NAME);
+                }
+
+                if (_logIdUpdated)
+                {
+                    newValues.Add(nameof(Models.TimeRecord.LOG_ID), RunningRecord.LOG_ID);
+                }
+
+                App.DataService.UpdateAllRuns(RunningRecord.PARENT_ID, newValues);
+                break;
+            }
+        }
     }
 
     #endregion
@@ -279,6 +455,7 @@ public partial class DetailsPageViewModel : BaseViewModel
                 if (TimeRecord.RECORD_TITLE != _originalTimeRecord.RECORD_TITLE)
                 {
                     RecordModified = true;
+                    _recTitleUpdated = true;
                 }
                 break;
             }
@@ -292,6 +469,7 @@ public partial class DetailsPageViewModel : BaseViewModel
                     if (StartingTime != strippedStartTime)
                     {
                         RecordModified = true;
+                        _startTimeUpdated = true;
                         await AdjustLiveTimer();
                     }
                 }
@@ -307,6 +485,7 @@ public partial class DetailsPageViewModel : BaseViewModel
                     if (StartingTime != strippedStartTime)
                     {
                         RecordModified = true;
+                        _startTimeUpdated = true;
                         await AdjustTimer();
                     }
                 }
@@ -322,6 +501,7 @@ public partial class DetailsPageViewModel : BaseViewModel
                     if (StoppingTime != strippedStopTime)
                     {
                         RecordModified = true;
+                        _stopTimeUpdated = true;
                         await AdjustTimer();
                     }
                 }
@@ -332,6 +512,7 @@ public partial class DetailsPageViewModel : BaseViewModel
                 if (TimeRecord.WORKITEM_TITLE != _originalTimeRecord.WORKITEM_TITLE)
                 {
                     RecordModified = true;
+                    _wiTitleUpdated = true;
                 }
                 break;
             }
@@ -340,6 +521,7 @@ public partial class DetailsPageViewModel : BaseViewModel
                 if (TimeRecord.CLIENT_NAME != _originalTimeRecord.CLIENT_NAME)
                 {
                     RecordModified = true;
+                    _clientNameUpdated = true;
                 }
                 break;
             }
@@ -348,6 +530,7 @@ public partial class DetailsPageViewModel : BaseViewModel
                 if (TimeRecord.LOG_ID != _originalTimeRecord.LOG_ID)
                 {
                     RecordModified = true;
+                    _logIdUpdated = true;
                 }
                 break;
             }
@@ -435,22 +618,12 @@ public partial class DetailsPageViewModel : BaseViewModel
             }
             case true when TimeRecord.REC_TIMER_RUNNING:
             {
-                RunningRecord.RECORD_TITLE = TimeRecord.RECORD_TITLE;
-                RunningRecord.START_TIMESTAMP = TimeRecord.START_TIMESTAMP;
-                RunningRecord.WORKITEM_TITLE = TimeRecord.WORKITEM_TITLE;
-                RunningRecord.CLIENT_NAME = TimeRecord.CLIENT_NAME;
-                RunningRecord.LOG_ID = TimeRecord.LOG_ID;
+                await UpdateTimeRecords(false);
                 break;
             }
             case false when RecordModified:
             {
-                if (App.DataService.UpdateRecord(TimeRecord) == 0)
-                {
-                    await CurShell.DisplayAlert("Error", "An error occurred while trying to update this record, please try again", "OK)");
-                    return;
-                }
-
-                await CurShell.DisplayAlert("Success", "Record was updated successfully", "OK");
+                await UpdateTimeRecords(true);
                 break;
             }
             case false:
