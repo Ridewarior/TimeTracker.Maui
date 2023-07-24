@@ -33,7 +33,7 @@ public class SQLiteDataService
     /// <summary>
     /// Gets all Time Records from the data source
     /// </summary>
-    /// <returns>Returns a list of TimeRecord</returns>
+    /// <returns>List of TimeRecords</returns>
     public List<TimeRecord> GetTimeRecords()
     {
         try
@@ -54,7 +54,7 @@ public class SQLiteDataService
     /// Gets a single Time Record from the data source
     /// </summary>
     /// <param name="recordId"></param>
-    /// <returns>Returns a TimeRecord</returns>
+    /// <returns>TimeRecord</returns>
     public TimeRecord GetTimeRecord(string recordId)
     {
         try

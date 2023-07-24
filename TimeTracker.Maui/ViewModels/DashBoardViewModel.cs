@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
+using CommunityToolkit.Mvvm.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mopups.Events;
@@ -18,7 +19,7 @@ public partial class DashBoardViewModel : BaseViewModel
 
     private const string StopTimerText = "Stop Timer";
 
-    public ObservableCollection<TimeRecord> TimeRecords { get; } = new();
+    public ObservableCollection<GroupedRecords> TimeRecords { get; } = new(); 
 
     [ObservableProperty]
     private bool _isRunning;
@@ -153,16 +154,21 @@ public partial class DashBoardViewModel : BaseViewModel
                 TimeRecords.Clear();
             }
 
-            // Eventually this should use a different DataService method better suited for the DashBoard so we don't pull the entire object.
-            var timeRecords = App.DataService.GetTimeRecords();
-            timeRecords.Reverse();
+            var sourceList = App.DataService.GetTimeRecords();
 
-            foreach (var record in timeRecords)
+            foreach (var record in sourceList)
             {
                 TruncateLongText(record);
-                TimeRecords.Add(record);
             }
 
+            var orderedDict = (sourceList.OrderByDescending(x => DateTime.Parse(x.START_TIMESTAMP))
+                .GroupBy(o => DateTime.Parse(o.START_TIMESTAMP).ToString("ddd dd MMM"))
+                .ToDictionary(g => g.Key, g => g.ToList()));
+
+            foreach (var item in orderedDict)
+            {
+                TimeRecords.Add(new GroupedRecords(item.Key, new List<TimeRecord>(item.Value)));
+            }
         }
         catch (Exception ex)
         {
