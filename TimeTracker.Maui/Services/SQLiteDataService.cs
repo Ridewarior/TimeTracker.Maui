@@ -33,7 +33,7 @@ public class SQLiteDataService
     /// <summary>
     /// Gets all Time Records from the data source
     /// </summary>
-    /// <returns>Returns a list of TimeRecord</returns>
+    /// <returns>List of TimeRecords</returns>
     public List<TimeRecord> GetTimeRecords()
     {
         try
@@ -54,13 +54,13 @@ public class SQLiteDataService
     /// Gets a single Time Record from the data source
     /// </summary>
     /// <param name="recordId"></param>
-    /// <returns>Returns a TimeRecord</returns>
-    public TimeRecord GetTimeRecord(int recordId)
+    /// <returns>TimeRecord</returns>
+    public TimeRecord GetTimeRecord(string recordId)
     {
         try
         {
             Init();
-            return _conn.Table<TimeRecord>().FirstOrDefault(x => x.TIMERECORD_ID == recordId);
+            return _conn.Table<TimeRecord>().FirstOrDefault(x => x.RECORD_ID == recordId);
         }
         catch (Exception e)
         {
@@ -70,12 +70,35 @@ public class SQLiteDataService
         
         return null;
     }
-    
+
+    /// <summary>
+    /// Gets the highest run count for the resumed record
+    /// </summary>
+    /// <param name="recordId"></param>
+    /// <returns>The highest run count for the resumed record</returns>
+    public int GetResumedRunCount(string recordId)
+    {
+        try
+        {
+            Init();
+            var queryResults = _conn.Table<TimeRecord>().Where(x => x.PARENT_ID == recordId).Select(x => x.RUN_COUNT).ToList();
+
+            return !queryResults.Any() ? 1 : queryResults.Max();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Failed to retrieve count of Time Records. Inner exception: \n{e.Message} \n{e.InnerException}");
+            StatusMessage = "Failed to retrieve count of Time Records";
+        }
+
+        return 0;
+    }
+
     /// <summary>
     /// Adds a new Time Record to the data source
     /// </summary>
     /// <param name="record"></param>
-    /// <exception cref="NotImplementedException"></exception>
+    /// <returns>Status code</returns>
     public int AddRecord(TimeRecord record)
     {
         try
@@ -107,16 +130,89 @@ public class SQLiteDataService
     }
 
     /// <summary>
-    /// Deletes a single Time Record from the data source
+    /// Updates a single TimeRecord
     /// </summary>
-    /// <param name="recordId"></param>
-    /// <returns>Returns that Delete result</returns>
-    public int DeleteRecord(int recordId)
+    /// <param name="record"></param>
+    /// <returns>Status code</returns>
+    public int UpdateRecord(TimeRecord record)
     {
         try
         {
             Init();
-            return _conn.Table<TimeRecord>().Delete(x => x.TIMERECORD_ID == recordId);
+            return _conn.Update(record);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"Failed to update record. Inner exception: \n{e.Message} \n{e.InnerException}");
+            StatusMessage = "Failed to update record";
+        }
+
+        return 0;
+    }
+
+    public void UpdateAllRuns(string recordId, Dictionary<string, string>updatedValues)
+    {
+        if (!updatedValues.Any())
+        {
+            return;
+        }
+
+        try
+        {
+            Init();
+            
+            var recordsList = _conn.Table<TimeRecord>().Where(x => x.RECORD_ID == recordId || x.PARENT_ID == recordId).ToList();
+
+            foreach (var record in recordsList)
+            {
+                foreach (var newValue in updatedValues)
+                {
+                    switch (newValue.Key)
+                    {
+                        case nameof(TimeRecord.RECORD_TITLE):
+                        {
+                            record.RECORD_TITLE = newValue.Value;
+                            break;
+                        }
+                        case nameof(TimeRecord.WORKITEM_TITLE):
+                        {
+                            record.WORKITEM_TITLE = newValue.Value;
+                            break;
+                        }
+                        case nameof(TimeRecord.CLIENT_NAME):
+                        {
+                            record.CLIENT_NAME = newValue.Value;
+                            break;
+                        }
+                        case nameof(TimeRecord.LOG_ID):
+                        {
+                            record.LOG_ID = newValue.Value;
+                            break;
+                        }
+                    }
+                }
+
+                UpdateRecord(record);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"Failed to update time records. Inner exception \n{e.Message} \n{e.InnerException}");
+            StatusMessage = "Failed to update time records";
+        }
+    }
+
+    /// <summary>
+    /// Deletes a single Time Record from the data source
+    /// </summary>
+    /// <param name="recordId"></param>
+    /// <returns>Status code</returns>
+    public int DeleteRecord(string recordId)
+    {
+        try
+        {
+            Init();
+            return _conn.Table<TimeRecord>().Delete(x => x.RECORD_ID == recordId);
         }
         catch (Exception e)
         {

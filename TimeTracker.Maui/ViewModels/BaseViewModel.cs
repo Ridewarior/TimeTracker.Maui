@@ -1,14 +1,14 @@
-﻿using System.Globalization;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Mopups.Interfaces;
 using Mopups.Services;
+using System.Globalization;
 using TimeTracker.Maui.Models;
 
 namespace TimeTracker.Maui.ViewModels;
 
 public partial class BaseViewModel : ObservableObject
 {
-    public const int NewRecordId = 0;
+    public readonly string NewRecordId = Guid.Empty.ToString();
 
     [ObservableProperty]
     private string _pageTitle;
@@ -28,6 +28,9 @@ public partial class BaseViewModel : ObservableObject
     [ObservableProperty]
     private string _timeElapsed;
 
+    [ObservableProperty]
+    private string _runCount;
+
     public static TimeRecord RunningRecord { get; set; } = new();
 
     public bool IsLoaded => !IsLoading;
@@ -37,6 +40,8 @@ public partial class BaseViewModel : ObservableObject
     protected readonly Shell CurShell = Shell.Current;
 
     public IPopupNavigation MopupInstance = MopupService.Instance;
+
+    public static bool RecordModified;
 
     public BaseViewModel()
     {
@@ -57,6 +62,7 @@ public partial class BaseViewModel : ObservableObject
         }
 
         App.TimerService.StopTimer();
+        RunningRecord.RECORD_ID = Guid.NewGuid().ToString();
         RunningRecord.STOP_TIMESTAMP = DateTime.Now.ToString(CultureInfo.InvariantCulture);
         RunningRecord.TIME_ELAPSED = TimeElapsed;
         RunningRecord.REC_TIMER_RUNNING = false;
@@ -65,28 +71,17 @@ public partial class BaseViewModel : ObservableObject
         return result != 0;
     }
 
-    public bool StopAndSave(TimeRecord record)
+    public void ResetRunningRecord()
     {
-        if (!TimerRunning)
-        {
-            return false;
-        }
-
-        App.TimerService.StopTimer();
-        RunningRecord.RECORD_TITLE = record.RECORD_TITLE;
-        RunningRecord.CLIENT_NAME = record.CLIENT_NAME;
-        RunningRecord.WORKITEM_TITLE = record.WORKITEM_TITLE;
-        RunningRecord.LOG_ID = record.LOG_ID;
-        RunningRecord.STOP_TIMESTAMP = DateTime.Now.ToString(CultureInfo.InvariantCulture);
-        RunningRecord.TIME_ELAPSED = TimeElapsed;
-        RunningRecord.REC_TIMER_RUNNING = false;
-        var result = App.DataService.AddRecord(RunningRecord);
-
-        return result != 0;
+        RunningRecord = new TimeRecord();
+        RunCount = string.Empty;
     }
 
-    public static void ResetRunningRecord()
+    public void IncrementRunCount()
     {
-        RunningRecord = new();
+        var resumedRunCount = App.DataService.GetResumedRunCount(RunningRecord.PARENT_ID) + 1;
+
+        RunningRecord.RUN_COUNT = resumedRunCount;
+        RunCount = $"({resumedRunCount})";
     }
 }

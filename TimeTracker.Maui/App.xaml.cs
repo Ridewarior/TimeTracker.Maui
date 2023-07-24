@@ -1,4 +1,5 @@
-﻿using TimeTracker.Maui.Services;
+﻿using Microsoft.Maui.Handlers;
+using TimeTracker.Maui.Services;
 
 namespace TimeTracker.Maui;
 
@@ -23,7 +24,7 @@ public partial class App
         DataService = dataService;
 		TimerService = timerService;
 		TimeFormat = @"hh\:mm\:ss";
-	}
+    }
 
 #if WINDOWS
     protected override Window CreateWindow(IActivationState activationState)

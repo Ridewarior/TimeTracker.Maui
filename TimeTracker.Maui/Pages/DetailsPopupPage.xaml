@@ -4,9 +4,16 @@
              xmlns:mopups="clr-namespace:Mopups.Pages;assembly=Mopups"
              xmlns:viewmodel="clr-namespace:TimeTracker.Maui.ViewModels"
              xmlns:animations="clr-namespace:Mopups.Animations;assembly=Mopups"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="TimeTracker.Maui.Pages.DetailsPopupPage"
              x:DataType="viewmodel:DetailsPageViewModel"
              BackgroundColor="#80000000">
+    
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
     
     <mopups:PopupPage.Animation>
         <animations:ScaleAnimation
@@ -27,26 +34,38 @@
             <StackLayout Padding="30"
                          Spacing="20"
                          Margin="0,20,0,0">
-                <Grid ColumnDefinitions="*,*">
-                    <Entry Grid.Column="0"
+                <Grid ColumnDefinitions="60,800,*"
+                      ColumnSpacing="10">
+                    <HorizontalStackLayout Grid.Column="0"
+                                           HorizontalOptions="Start"
+                                           Margin="0,10,0,0">
+                        <Label FontAttributes="Bold"
+                               Text="Run#:"/>
+                        <Label FontAttributes="Bold"
+                               Text="{Binding TimeRecord.RUN_COUNT}"/>
+                    </HorizontalStackLayout>
+                    <Entry x:Name="EntRecTitle"
+                           Grid.Column="1"
                            HorizontalOptions="Start"
                            Placeholder="Record Title"
-                           Text="{Binding TimeRecord.RECORD_TITLE}"/>
+                           Text="{Binding TimeRecord.RECORD_TITLE}"
+                           Unfocused="CheckEntries_OnUnfocused"/>
                     <Label x:Name="LblElapsedTime"
-                           Grid.Column="1"
+                           Grid.Column="2"
                            HorizontalOptions="End"
+                           Margin="0,10,0,0"
                            Text="{Binding TimeRecord.TIME_ELAPSED}"
                            FontAttributes="Bold"/>
                 </Grid>
-                <!-- Eventually this button should be removed and replaced with a Switch control -->
-                <Button Margin="0,10,0,0"
-                        HorizontalOptions="Start"
-                        WidthRequest="200"
-                        HeightRequest="50"
-                        Text="{Binding EnableDisableDateTimeTxt}"
-                        FontAttributes="Bold"
-                        Command="{Binding EnableDisableStopDateCommand}"
-                        IsEnabled="{Binding StopDateTimeEnabled}"/>
+                <HorizontalStackLayout Margin="0,10,0,0"
+                                       HorizontalOptions="Start"
+                                       Spacing="10"
+                                       IsVisible="{Binding StopDateTimeEnabled}"
+                                       IsEnabled="{Binding StopDateTimeEnabled}">
+                    <Label Margin="0,8,0,0"
+                           Text="{Binding EnableDisableDateTimeTxt}"/>
+                    <Switch Toggled="Switch_OnToggled"/>
+                </HorizontalStackLayout>
                 <Border StrokeShape="RoundRectangle 10,10,10,10"
                         Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark=gray}"
                         StrokeThickness="2.8"
@@ -62,14 +81,14 @@
                                                Spacing="12">
                             <TimePicker x:Name="TpStartTime"
                                         Time="{Binding StartTime}"
-                                        PropertyChanged="StartingTime_OnPropertyChanged"
+                                        PropertyChanged="DateTime_OnPropertyChanged"
                                         />
                             <DatePicker x:Name="DpStartDate"
                                         Format="MM/dd"
                                         Margin="0,0,0,10"
                                         Date="{Binding StartTimeStamp}"
                                         IsEnabled="{Binding StopDateTimeChecked}"
-                                        PropertyChanged="StartingTime_OnPropertyChanged"/>
+                                        PropertyChanged="DateTime_OnPropertyChanged"/>
                         </HorizontalStackLayout>
                     </StackLayout>
                 </Border>
@@ -88,12 +107,16 @@
                                IsEnabled="{Binding StopDateTimeChecked}"/>
                         <HorizontalStackLayout HorizontalOptions="Center"
                                                Spacing="12">
-                            <TimePicker Time="{Binding StopTime}"
-                                        IsEnabled="{Binding StopDateTimeChecked}"/>
-                            <DatePicker Format="MM/dd"
+                            <TimePicker x:Name="TpStopTime"
+                                        Time="{Binding StopTime}"
+                                        IsEnabled="{Binding StopDateTimeChecked}"
+                                        PropertyChanged="DateTime_OnPropertyChanged"/>
+                            <DatePicker x:Name="DpStopDate"
+                                        Format="MM/dd"
                                         Margin="0,0,0,10"
                                         Date="{Binding StopTimeStamp}"
-                                        IsEnabled="{Binding StopDateTimeChecked}"/>
+                                        IsEnabled="{Binding StopDateTimeChecked}"
+                                        PropertyChanged="DateTime_OnPropertyChanged"/>
                         </HorizontalStackLayout>
                     </StackLayout>
                 </Border>
@@ -121,15 +144,21 @@
                            FontAttributes="Bold"
                            LineBreakMode="NoWrap"
                            Padding="80,0,78,0"/>
-                    <Entry Grid.Row="1"
+                    <Entry x:Name="EntWiTitle"
+                           Grid.Row="1"
                            Grid.Column="0"
-                           Text="{Binding TimeRecord.WORKITEM_TITLE}"/>
-                    <Entry Grid.Row="1"
+                           Text="{Binding TimeRecord.WORKITEM_TITLE}"
+                           Unfocused="CheckEntries_OnUnfocused"/>
+                    <Entry x:Name="EntClientName"
+                           Grid.Row="1"
                            Grid.Column="1"
-                           Text="{Binding TimeRecord.CLIENT_NAME}"/>
-                    <Entry Grid.Row="1"
+                           Text="{Binding TimeRecord.CLIENT_NAME}"
+                           Unfocused="CheckEntries_OnUnfocused"/>
+                    <Entry x:Name="EntLogId"
+                           Grid.Row="1"
                            Grid.Column="2"
-                           Text="{Binding TimeRecord.LOG_ID}"/>
+                           Text="{Binding TimeRecord.LOG_ID}"
+                           Unfocused="CheckEntries_OnUnfocused"/>
                 </Grid>
 
                 <HorizontalStackLayout HorizontalOptions="Center"
@@ -155,8 +184,8 @@
                             WidthRequest="250"
                             HeightRequest="70"
                             BackgroundColor="Red"
-                            IsEnabled="{Binding EnableDeleteBtn}"
-                            IsVisible="{Binding EnableDeleteBtn}"
+                            IsEnabled="{Binding IsNewRec, Converter={StaticResource InvertedBoolConverter}}"
+                            IsVisible="{Binding IsNewRec, Converter={StaticResource InvertedBoolConverter}}"
                             Command="{Binding DeleteRecordCommand}"/>
 
                 </HorizontalStackLayout>
