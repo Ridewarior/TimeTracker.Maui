@@ -12,7 +12,9 @@
         <CollectionView.GroupHeaderTemplate>
             <DataTemplate x:DataType="models:GroupedRecords">
                 <Label Text="{Binding GroupDate}"
-                       FontAttributes="Bold"/>
+                       FontAttributes="Bold"
+                       Margin="0,15,0,0"
+                       FontSize="16"/>
             </DataTemplate>
         </CollectionView.GroupHeaderTemplate>
         <CollectionView.ItemTemplate>
