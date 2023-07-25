@@ -4,8 +4,11 @@ public class GroupedRecords : List<TimeRecord>
 {
     public string GroupDate { get; set; }
 
-    public GroupedRecords(string groupDate, List<TimeRecord> timeRecords) : base(timeRecords)
+    public string AccumulatedTime { get; set; }
+
+    public GroupedRecords(string groupDate, string accumulatedTime, IEnumerable<TimeRecord> timeRecords) : base(timeRecords)
     {
         GroupDate = groupDate;
+        AccumulatedTime = accumulatedTime;
     }
 }

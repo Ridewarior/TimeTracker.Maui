@@ -11,10 +11,20 @@
                         IsGrouped="True">
         <CollectionView.GroupHeaderTemplate>
             <DataTemplate x:DataType="models:GroupedRecords">
-                <Label Text="{Binding GroupDate}"
-                       FontAttributes="Bold"
-                       Margin="0,15,0,0"
-                       FontSize="16"/>
+                <Grid ColumnDefinitions="*,*"
+                      Margin="0,15,0,0">
+                    <Label Grid.Column="0"
+                           Text="{Binding GroupDate}"
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           HorizontalOptions="Start"/>
+
+                    <Label Grid.Column="1"
+                           Text="{Binding AccumulatedTime}"
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           HorizontalOptions="End"/>
+                </Grid>
             </DataTemplate>
         </CollectionView.GroupHeaderTemplate>
         <CollectionView.ItemTemplate>

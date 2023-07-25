@@ -167,7 +167,9 @@ public partial class DashBoardViewModel : BaseViewModel
 
             foreach (var item in orderedDict)
             {
-                TimeRecords.Add(new GroupedRecords(item.Key, new List<TimeRecord>(item.Value)));
+                var accumulatedTime = TimeSpan.Zero;
+                accumulatedTime = item.Value.Aggregate(accumulatedTime, (current, record) => current.Add(TimeSpan.Parse(record.TIME_ELAPSED)));
+                TimeRecords.Add(new GroupedRecords(item.Key, accumulatedTime.ToString(), new List<TimeRecord>(item.Value)));
             }
         }
         catch (Exception ex)
