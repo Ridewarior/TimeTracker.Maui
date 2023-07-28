@@ -149,21 +149,22 @@ public partial class DashBoardViewModel : BaseViewModel
         try
         {
             IsLoading = true;
+
             if (TimeRecords.Any())
             {
                 TimeRecords.Clear();
             }
 
-            var sourceList = App.DataService.GetTimeRecords();
+            var sourceList = App.DataService.GetTimeRecords() ?? throw new Exception();
 
             foreach (var record in sourceList)
             {
                 TruncateLongText(record);
             }
 
-            var orderedDict = (sourceList.OrderByDescending(x => DateTime.Parse(x.START_TIMESTAMP))
+            var orderedDict = sourceList.OrderByDescending(x => DateTime.Parse(x.START_TIMESTAMP))
                 .GroupBy(o => DateTime.Parse(o.START_TIMESTAMP).ToString("ddd dd MMM"))
-                .ToDictionary(g => g.Key, g => g.ToList()));
+                .ToDictionary(g => g.Key, g => g.ToList());
 
             foreach (var item in orderedDict)
             {
@@ -172,10 +173,9 @@ public partial class DashBoardViewModel : BaseViewModel
                 TimeRecords.Add(new GroupedRecords(item.Key, accumulatedTime.ToString(), new List<TimeRecord>(item.Value)));
             }
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Debug.WriteLine($"Unable to get list of Time Records: \n {ex.Message}");
-            await Shell.Current.DisplayAlert("Error", "Failed to get list of Time Records", "OK");
+            await CurShell.DisplayAlert("Error", "Failed to retrieve the list of Time Records.", "OK");
         }
         finally
         {

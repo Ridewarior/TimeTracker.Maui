@@ -1,4 +1,5 @@
 ﻿using System.Timers;
+using Microsoft.Extensions.Logging;
 using Timer = System.Timers.Timer;
 
 namespace TimeTracker.Maui.Services;
@@ -7,6 +8,7 @@ public class TimerService
 {
     private readonly Timer _perpetualTimer = new();
     private readonly Timer _timer = new();
+    private readonly ILogger<TimerService> _logger;
     private const int TimerInterval = 1000;
     private int _perpetualHours, _perpetualMinutes, _perpetualSeconds;
     private int _hours, _minutes, _seconds;
@@ -18,8 +20,9 @@ public class TimerService
 
     public event EventHandler TimerElapsed; 
 
-    public TimerService()
+    public TimerService(ILogger<TimerService> logger)
     {
+        _logger = logger;
         _perpetualTimer.Interval = TimerInterval;
         _perpetualTimer.Elapsed += PerpetualCountEvent;
         _timer.Interval = TimerInterval;
@@ -48,6 +51,7 @@ public class TimerService
         _perpetualTimer.Start();
         _timer.Start();
         Running = true;
+        _logger.LogInformation("Timer Started on {currentTime}", DateTime.Now);
     }
 
     /// <summary>
@@ -57,7 +61,9 @@ public class TimerService
     /// <param name="pullBack"></param>
     public void AdjustTimer(TimeSpan newStartTime, bool pullBack)
     {
+        _logger.LogDebug("Pre-adjusted time {ElapsedTime}", ElapsedTime);
         ElapsedTime = pullBack ? ElapsedTime.Add(newStartTime) : ElapsedTime.Subtract(newStartTime);
+        _logger.LogDebug("Adjusted time {ElapsedTime}", ElapsedTime);
 
         _hours = newStartTime.Hours;
         _minutes = newStartTime.Minutes;
@@ -71,6 +77,7 @@ public class TimerService
         _perpetualTimer.Stop();
         _timer.Stop();
         Running = false;
+        _logger.LogInformation("Timer Stopped on {currentTime}", DateTime.Now);
     }
 
     /// <summary>

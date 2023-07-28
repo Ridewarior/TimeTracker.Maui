@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Maui;
+using MetroLog.MicrosoftExtensions;
+using MetroLog.Operators;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using Mopups.Hosting;
@@ -46,9 +48,39 @@ public static class MauiProgram
         builder.Services.AddSingleton<DashBoardPage>();
         builder.Services.AddTransient<DetailsPopupPage>();
 
+
+        builder.Logging
+            .SetMinimumLevel(LogLevel.Trace)
+            .AddInMemoryLogger(
+                options =>
+                {
+                    options.MaxLines = 1024;
+                    options.MinLevel = LogLevel.Debug;
+                    options.MaxLevel = LogLevel.Critical;
+                })
+            .AddConsoleLogger(
+                options =>
+                {
+                    options.MinLevel = LogLevel.Information;
+                    options.MaxLevel = LogLevel.Critical;
+                }) // Will write to the console log (logcat for android)
 #if DEBUG
-		builder.Logging.AddDebug();
+            .AddTraceLogger(
+                options =>
+                {
+                    options.MinLevel = LogLevel.Trace;
+                    options.MaxLevel = LogLevel.Critical;
+                }); // Writes to the debug console
+#else
+            .AddStreamingFileLogger(
+                options =>
+                {
+                    options.RetainDays = 2;
+                    options.FolderPath = Path.Combine(FileSystem.CacheDirectory, "TimeTrackerLogs");
+                });
 #endif
+
+        builder.Services.AddSingleton(LogOperatorRetriever.Instance);
 
 		return builder.Build();
 	}

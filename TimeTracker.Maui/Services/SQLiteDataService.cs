@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using SQLite;
 using TimeTracker.Maui.Models;
 
@@ -8,12 +9,12 @@ public class SQLiteDataService
 {
     private SQLiteConnection _conn;
     private readonly string _dbPath;
-    // Eventually create a logger class that will handle logging full exceptions as well as holding status messages for display
-    public string StatusMessage;
+    private readonly ILogger<SQLiteDataService> _logger;
 
-    public SQLiteDataService(string dbPath)
+    public SQLiteDataService(string dbPath, ILogger<SQLiteDataService> logger)
     {
         _dbPath = dbPath;
+        _logger = logger;
     }
 
     /// <summary>
@@ -25,9 +26,11 @@ public class SQLiteDataService
         {
             return;
         }
+
         SQLitePCL.Batteries.Init();
         _conn = new SQLiteConnection(_dbPath);
         _conn.CreateTable<TimeRecord>();
+        _logger.LogInformation("SQLite connection initialized");
     }
 
     /// <summary>
@@ -39,15 +42,18 @@ public class SQLiteDataService
         try
         {
             Init();
-            return _conn.Table<TimeRecord>().ToList();
+
+            var results = _conn.Table<TimeRecord>().ToList();
+            _logger.LogDebug("Returned {resultsCount} records from the source", results.Count);
+
+            return results;
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"Failed to retrieve Time Records. Inner Exception: \n{e.Message} \n{e.InnerException}");
-            StatusMessage = "Failed to retrieve Time Records";
+            _logger.LogError(e.InnerException, "Failed to retrieve the Time Records from the source. Exception: {Message}", e.Message);
         }
 
-        return new List<TimeRecord>();
+        return null;
     }
     
     /// <summary>
@@ -60,12 +66,15 @@ public class SQLiteDataService
         try
         {
             Init();
-            return _conn.Table<TimeRecord>().FirstOrDefault(x => x.RECORD_ID == recordId);
+
+            var result = _conn.Table<TimeRecord>().FirstOrDefault(x => x.RECORD_ID == recordId);
+            _logger.LogDebug("Record retrieved from source: {result}", result.RECORD_ID);
+
+            return result;
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"Failed to retrieve Time Record. Inner exception: \n{e.Message} \n{e.InnerException}");
-            StatusMessage = "Failed to retrieve Time Record";
+            _logger.LogError(e.InnerException, "Failed to retrieve the Time Record from the source. Exception: {Message}", e.Message);
         }
         
         return null;
@@ -81,14 +90,16 @@ public class SQLiteDataService
         try
         {
             Init();
-            var queryResults = _conn.Table<TimeRecord>().Where(x => x.PARENT_ID == recordId).Select(x => x.RUN_COUNT).ToList();
 
-            return !queryResults.Any() ? 1 : queryResults.Max();
+            var queryResults = _conn.Table<TimeRecord>().Where(x => x.PARENT_ID == recordId).Select(x => x.RUN_COUNT).ToList();
+            var result = !queryResults.Any() ? 1 : queryResults.Max();
+            _logger.LogDebug("Number of run counts retrieved: {queryResultsCount}. Highest run count is {result}", queryResults.Count, result);
+
+            return result;
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Failed to retrieve count of Time Records. Inner exception: \n{e.Message} \n{e.InnerException}");
-            StatusMessage = "Failed to retrieve count of Time Records";
+            _logger.LogError(e.InnerException, "Failed to retrieve the resumed run count. Exception: {Message}", e.Message);
         }
 
         return 0;
@@ -104,26 +115,23 @@ public class SQLiteDataService
         try
         {
             Init();
+
             if (record == null)
             {
                 throw new InvalidDataException("Invalid Time Record");
             }
             
             var result = _conn.Insert(record);
+
             if (result != 0)
             {
-                StatusMessage = "Insert Successful";
+                _logger.LogDebug("Record {record} was added successfully.", record.RECORD_ID);
                 return _conn.Table<TimeRecord>().Count();
-            }
-            else
-            {
-                StatusMessage = "Insert Failed";
             }
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"Failed to insert record. Inner Exception: \n{e.Message} \n{e.InnerException}");
-            StatusMessage = "Failed to insert record";
+            _logger.LogError(e.InnerException, "Failed to add the Time Record. Exception: {Message}", e.Message);
         }
 
         return 0;
@@ -139,12 +147,18 @@ public class SQLiteDataService
         try
         {
             Init();
-            return _conn.Update(record);
+
+            var result = _conn.Update(record);
+
+            if (result != 0)
+            {
+                _logger.LogDebug("Updated record {record} successfully", record.RECORD_ID);
+                return result;
+            }
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"Failed to update record. Inner exception: \n{e.Message} \n{e.InnerException}");
-            StatusMessage = "Failed to update record";
+            _logger.LogError(e.InnerException, "Failed to update the Time Record. Exception {Message}", e.Message);
         }
 
         return 0;
@@ -167,6 +181,7 @@ public class SQLiteDataService
             {
                 foreach (var newValue in updatedValues)
                 {
+                    _logger.LogDebug("Property {newValueKey} is being updated to {newValue}", newValue.Key, newValue.Value);
                     switch (newValue.Key)
                     {
                         case nameof(TimeRecord.RECORD_TITLE):
@@ -197,8 +212,7 @@ public class SQLiteDataService
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"Failed to update time records. Inner exception \n{e.Message} \n{e.InnerException}");
-            StatusMessage = "Failed to update time records";
+            _logger.LogError(e.InnerException, "Failed to update the Time Records. Exception: {Message}", e.Message);
         }
     }
 
@@ -212,12 +226,22 @@ public class SQLiteDataService
         try
         {
             Init();
-            return _conn.Table<TimeRecord>().Delete(x => x.RECORD_ID == recordId);
+
+#if DEBUG
+            var recordToDelete = GetTimeRecord(recordId);
+            _logger.LogDebug("Record to delete: {recordToDelete}", recordToDelete);
+#endif
+
+            var result = _conn.Table<TimeRecord>().Delete(x => x.RECORD_ID == recordId);
+
+            if (result != 0)
+            {
+                return result;
+            }
         }
         catch (Exception e)
         {
-            Debug.WriteLine($"Failed to delete record. Inner exception: \n{e.Message} \n{e.InnerException}");
-            StatusMessage = "Failed to delete record";
+            _logger.LogError(e.InnerException, "Failed to delete the Time Record. Exception: {Message}", e.Message);
         }
         
         return 0;
