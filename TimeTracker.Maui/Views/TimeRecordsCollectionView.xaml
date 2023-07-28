@@ -11,7 +11,7 @@
                         IsGrouped="True">
         <CollectionView.GroupHeaderTemplate>
             <DataTemplate x:DataType="models:GroupedRecords">
-                <Grid ColumnDefinitions="*,*"
+                <Grid ColumnDefinitions="100,*"
                       Margin="0,15,0,0">
                     <Label Grid.Column="0"
                            Text="{Binding GroupDate}"
@@ -19,6 +19,7 @@
                            FontSize="16"
                            HorizontalOptions="Start"/>
 
+                    <!--HorizontalOptions here isn't working correctly for WinUI-->
                     <Label Grid.Column="1"
                            Text="{Binding AccumulatedTime}"
                            FontAttributes="Bold"
