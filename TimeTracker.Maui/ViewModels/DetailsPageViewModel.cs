@@ -71,15 +71,11 @@ public partial class DetailsPageViewModel : BaseViewModel
 
     private bool _logIdUpdated;
 
-    public bool IsNewRec => TimeRecord.RECORD_ID == Guid.Empty.ToString();
+    public bool IsNewRec => TimeRecord.RECORD_ID == NewRecordId;
 
-    public DetailsPageViewModel(string recordId)
+    public DetailsPageViewModel(TimeRecord record)
     {
-        TimeRecord = new TimeRecord
-        {
-            RECORD_ID = recordId
-        };
-
+        TimeRecord = record;
         EnableStartBtn = !TimerRunning;
 
         PageLoad();
@@ -150,8 +146,6 @@ public partial class DetailsPageViewModel : BaseViewModel
             }
             case false:
             {
-                TimeRecord = App.DataService.GetTimeRecord(TimeRecord.RECORD_ID);
-
                 if (DateTime.TryParse(TimeRecord.START_TIMESTAMP, out var strTime) && DateTime.TryParse(TimeRecord.STOP_TIMESTAMP, out var stpTime))
                 {
                     StartTime = new TimeSpan(strTime.Hour, strTime.Minute, strTime.Second);

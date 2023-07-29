@@ -8,7 +8,6 @@
              x:DataType="viewmodel:DashBoardViewModel"
              Title="{Binding PageTitle}">
 
-    <!-- RefreshView pull down to refresh isn't currently working on Windows -->
     <toolkit:DockLayout>
         <Border toolkit:DockLayout.DockPosition="Bottom"
                 StrokeShape="RoundRectangle 10,10,0,0"

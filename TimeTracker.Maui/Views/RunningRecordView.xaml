@@ -12,7 +12,7 @@
                 StrokeThickness="2.8"
                 BackgroundColor="DarkOrange">
         <Border.GestureRecognizers>
-            <TapGestureRecognizer Command="{Binding GoToBlankRecordCommand}"/>
+            <TapGestureRecognizer Command="{Binding StartNewRecordCommand}"/>
         </Border.GestureRecognizers>
         <Grid ColumnDefinitions="30,*,*,*,*,*">
             <Label Grid.Column="0"

@@ -20,7 +20,10 @@ public partial class DashBoardViewModel : BaseViewModel
 
     private const string StopTimerText = "Stop Timer";
 
-    public ObservableCollection<GroupedRecords> TimeRecords { get; } = new(); 
+    public ObservableCollection<GroupedRecords> TimeRecords { get; } = new();
+
+    [ObservableProperty]
+    private TimeRecord _selectedRecord;
 
     [ObservableProperty]
     private bool _isRunning;
@@ -191,9 +194,14 @@ public partial class DashBoardViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    public async Task GoToBlankRecord()
+    public async Task StartNewRecord()
     {
-        await GoToRecordDetails(NewRecordId);
+        var newRecord = new TimeRecord
+        {
+            RECORD_ID = NewRecordId
+        };
+
+        await MopupInstance.PushAsync(new DetailsPopupPage(new DetailsPageViewModel(newRecord)));
     }
 
     [RelayCommand]
@@ -201,7 +209,7 @@ public partial class DashBoardViewModel : BaseViewModel
     {
         if (!TimerRunning)
         {
-            await GoToBlankRecord();
+            await StartNewRecord();
         }
         else
         {
@@ -232,9 +240,16 @@ public partial class DashBoardViewModel : BaseViewModel
     //}
 
     [RelayCommand]
-    public async Task GoToRecordDetails(string recordId)
+    public async Task GoToRecordDetails(object args)
     {
-        await MopupInstance.PushAsync(new DetailsPopupPage(new DetailsPageViewModel(recordId)));
+        if (args is not TimeRecord record)
+        {
+            return;
+        }
+
+        SelectedRecord = null!;
+
+        await MopupInstance.PushAsync(new DetailsPopupPage(new DetailsPageViewModel(record)));
     }
 
     [RelayCommand]

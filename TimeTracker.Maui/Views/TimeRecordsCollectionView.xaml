@@ -3,15 +3,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:TimeTracker.Maui.Models"
              xmlns:viewmodel="clr-namespace:TimeTracker.Maui.ViewModels"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:DataType="viewmodel:DashBoardViewModel"
              x:Class="TimeTracker.Maui.Views.TimeRecordsCollectionView">
 
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <toolkit:SelectedItemEventArgsConverter x:Key="SelectedItemEventArgsConverter"/>
+        </ResourceDictionary>
+    </ContentView.Resources>
+
     <ListView ItemsSource="{Binding TimeRecords}"
-              SelectionMode="None"
+              SelectionMode="Single"
               IsGroupingEnabled="True"
               IsPullToRefreshEnabled="True"
               RefreshCommand="{Binding GetTimeRecordsCommand}"
-              IsRefreshing="{Binding IsRefreshing}">
+              IsRefreshing="{Binding IsRefreshing}"
+              SelectedItem="{Binding SelectedRecord}">
         <ListView.GroupHeaderTemplate>
             <DataTemplate x:DataType="models:GroupedRecords">
                 <ViewCell>
@@ -31,6 +39,12 @@
                 </ViewCell>
             </DataTemplate>
         </ListView.GroupHeaderTemplate>
+        <ListView.Behaviors>
+            <toolkit:EventToCommandBehavior
+                Command="{Binding GoToRecordDetailsCommand}"
+                EventArgsConverter="{StaticResource SelectedItemEventArgsConverter}"
+                EventName="ItemSelected"/>
+        </ListView.Behaviors>
         <ListView.ItemTemplate>
             <DataTemplate x:DataType="models:TimeRecord">
                 <ViewCell>
@@ -40,10 +54,6 @@
                             Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark=Gray}"
                             StrokeThickness="2.8"
                             BackgroundColor="{AppThemeBinding Dark=#1A1A1A}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DashBoardViewModel}}, Path=GoToRecordDetailsCommand}"
-                                                  CommandParameter="{Binding RECORD_ID}"/>
-                        </Border.GestureRecognizers>
                         <Grid ColumnDefinitions="30,*,*,*,*,*">
                             <HorizontalStackLayout Grid.Column="0"
                                                    IsVisible="{Binding SHOW_RUN_COUNT}">
