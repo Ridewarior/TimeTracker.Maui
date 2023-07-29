@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Mopups.Events;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using TimeTracker.Maui.Models;
 using TimeTracker.Maui.Pages;
 
@@ -217,27 +218,79 @@ public partial class DashBoardViewModel : BaseViewModel
         }
     }
 
-    // Not ready, currently waiting on context menu options
-    //[RelayCommand]
-    //public async Task DeleteRecord(string recordId)
-    //{
-    //    if (string.IsNullOrWhiteSpace(recordId))
-    //    {
-    //        await CurShell.DisplayAlert("Invalid Record", "Please try again", "OK");
-    //        return;
-    //    }
+    [RelayCommand]
+    public async Task ResumeRecord(string recordId)
+    {
+        if (string.IsNullOrEmpty(recordId))
+        {
+            await CurShell.DisplayAlert("Error", "Invalid record, please try again", "OK");
+            return;
+        }
 
-    //    var result = App.DataService.DeleteRecord(recordId);
-    //    if (result == 0)
-    //    {
-    //        await CurShell.DisplayAlert("Invalid Data", "Please insert valid data", "OK0");
-    //    }
-    //    else
-    //    {
-    //        await CurShell.DisplayAlert("Delete Successful", "Record removed successfully", "OK");
-    //        await GetTimeRecords();
-    //    }
-    //}
+        if (IsRunning)
+        {
+            await CurShell.DisplayAlert("Warning", "A timer is already running", "OK");
+            return;
+        }
+
+        var record = App.DataService.GetTimeRecord(recordId);
+        var currentTime = DateTime.Now;
+
+        if (!string.IsNullOrEmpty(record.PARENT_ID))
+        {
+            RunningRecord = new TimeRecord
+            {
+                RECORD_TITLE = record.RECORD_TITLE,
+                START_TIMESTAMP = currentTime.ToString(CultureInfo.InvariantCulture),
+                WORKITEM_TITLE = record.WORKITEM_TITLE,
+                CLIENT_NAME = record.CLIENT_NAME,
+                LOG_ID = record.LOG_ID,
+                PARENT_ID = record.PARENT_ID,
+                REC_TIMER_RUNNING = true
+            };
+        }
+        else
+        {
+            RunningRecord = new TimeRecord
+            {
+                RECORD_TITLE = record.RECORD_TITLE,
+                START_TIMESTAMP = currentTime.ToString(CultureInfo.InvariantCulture),
+                WORKITEM_TITLE = record.WORKITEM_TITLE,
+                CLIENT_NAME = record.CLIENT_NAME,
+                LOG_ID = record.LOG_ID,
+                PARENT_ID = record.RECORD_ID,
+                REC_TIMER_RUNNING = true
+            };
+        }
+
+        IncrementRunCount();
+        App.TimerService.StartTimer(DateTime.Now - currentTime);
+        GetTimeRecords().Wait();
+        UpdateControls();
+    }
+
+    [RelayCommand]
+    public async Task DeleteRecord(string recordId)
+    {
+        if (string.IsNullOrEmpty(recordId))
+        {
+            await CurShell.DisplayAlert("Error", "Invalid record, please try again", "OK");
+            return;
+        }
+
+        var record = App.DataService.GetTimeRecord(recordId);
+        var result = App.DataService.DeleteRecord(record.RECORD_ID);
+
+        if (result == 0)
+        {
+            await CurShell.DisplayAlert("Error", "An error occurred while trying to delete this record, please try again", "OK");
+        }
+        else
+        {
+            await CurShell.DisplayAlert("Success", "Record was deleted successfully", "OK");
+            GetTimeRecords().Wait();
+        }
+    }
 
     [RelayCommand]
     public async Task GoToRecordDetails(object args)

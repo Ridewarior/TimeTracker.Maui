@@ -79,7 +79,6 @@ public class SQLiteDataService
         return null;
     }
 
-#if DEBUG
     /// <summary>
     /// Gets the highest run count for the resumed record
     /// </summary>
@@ -104,7 +103,6 @@ public class SQLiteDataService
 
         return 0;
     }
-#endif
 
     /// <summary>
     /// Adds a new Time Record to the data source

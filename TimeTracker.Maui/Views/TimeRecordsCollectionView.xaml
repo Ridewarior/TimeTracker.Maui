@@ -3,13 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:TimeTracker.Maui.Models"
              xmlns:viewmodel="clr-namespace:TimeTracker.Maui.ViewModels"
+             xmlns:fa="clr-namespace:TimeTracker.Maui.Helpers"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:DataType="viewmodel:DashBoardViewModel"
-             x:Class="TimeTracker.Maui.Views.TimeRecordsCollectionView">
+             x:Class="TimeTracker.Maui.Views.TimeRecordsCollectionView"
+             x:Name="CollectionView">
 
     <ContentView.Resources>
         <ResourceDictionary>
             <toolkit:SelectedItemEventArgsConverter x:Key="SelectedItemEventArgsConverter"/>
+            <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
         </ResourceDictionary>
     </ContentView.Resources>
 
@@ -54,6 +57,24 @@
                             Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark=Gray}"
                             StrokeThickness="2.8"
                             BackgroundColor="{AppThemeBinding Dark=#1A1A1A}">
+                        <FlyoutBase.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Text="Resume"
+                                                Command="{Binding Source={x:Reference CollectionView}, Path=BindingContext.ResumeRecordCommand}"
+                                                CommandParameter="{Binding RECORD_ID}"/>
+                                <MenuFlyoutSeparator/>
+                                <MenuFlyoutItem Text="Delete"
+                                                IsDestructive="True"
+                                                Command="{Binding Source={x:Reference CollectionView}, Path=BindingContext.DeleteRecordCommand}"
+                                                CommandParameter="{Binding RECORD_ID}">
+                                    <MenuFlyoutItem.IconImageSource>
+                                        <FontImageSource FontFamily="FAS"
+                                                         Color="{AppThemeBinding Dark={StaticResource White}, Light={StaticResource Black}}"
+                                                         Glyph="{x:Static fa:FontAwesomeIcons.TrashCan}"/>
+                                    </MenuFlyoutItem.IconImageSource>
+                                </MenuFlyoutItem>
+                            </MenuFlyout>
+                        </FlyoutBase.ContextFlyout>
                         <Grid ColumnDefinitions="30,*,*,*,*,*">
                             <HorizontalStackLayout Grid.Column="0"
                                                    IsVisible="{Binding SHOW_RUN_COUNT}">
