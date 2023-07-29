@@ -24,6 +24,9 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                fonts.AddFont("fa-brands-400.otf", "FAB");
+                fonts.AddFont("fa-regular-400.otf", "FAR");
+                fonts.AddFont("fa-solid-900.otf", "FAS");
             });
 #if WINDOWS
         builder.ConfigureLifecycleEvents(lifecycle =>
@@ -63,7 +66,7 @@ public static class MauiProgram
                 {
                     options.MinLevel = LogLevel.Information;
                     options.MaxLevel = LogLevel.Critical;
-                }) // Will write to the console log (logcat for android)
+                }) // Writes to the console log (logcat for android)
 #if DEBUG
             .AddTraceLogger(
                 options =>
