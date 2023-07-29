@@ -36,15 +36,12 @@
         </Border>
 
         <ScrollView toolkit:DockLayout.DockPosition="None">
-            <RefreshView Command="{Binding GetTimeRecordsCommand}"
-                         IsRefreshing="{Binding IsRefreshing}">
-                <StackLayout>
-                    <views:RunningRecordView IsVisible="{Binding IsRunning}"
-                                             IsEnabled="{Binding IsRunning}"/>
+            <StackLayout Margin="10,0,10,0">
+                <views:RunningRecordView IsVisible="{Binding IsRunning}"
+                                         IsEnabled="{Binding IsRunning}"/>
 
-                    <views:TimeRecordsCollectionView/>
-                </StackLayout>
-            </RefreshView>
+                <views:TimeRecordsCollectionView/>
+            </StackLayout>
         </ScrollView>
     </toolkit:DockLayout>
 </ContentPage>

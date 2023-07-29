@@ -1,9 +1,8 @@
-﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
-using CommunityToolkit.Mvvm.Collections;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Mopups.Events;
+using System.Collections.ObjectModel;
 using TimeTracker.Maui.Models;
 using TimeTracker.Maui.Pages;
 
@@ -11,6 +10,8 @@ namespace TimeTracker.Maui.ViewModels;
 
 public partial class DashBoardViewModel : BaseViewModel
 {
+    private readonly ILogger<DashBoardViewModel> _logger;
+
     private const int MinorTextMaxLength = 22;
 
     private const int MajorTextMaxLength = 30;
@@ -45,10 +46,11 @@ public partial class DashBoardViewModel : BaseViewModel
     [ObservableProperty]
     private bool _showRunCount;
 
-    public DashBoardViewModel()
+    public DashBoardViewModel(ILogger<DashBoardViewModel> logger)
     {
         PageTitle = "TimeTracker: DashBoard";
 
+        _logger = logger;
         MopupInstance.Popped += OnPopupPopped;
         GetTimeRecords().Wait();
         UpdateControls();
@@ -139,11 +141,11 @@ public partial class DashBoardViewModel : BaseViewModel
     #region Page Commands
 
     [RelayCommand]
-    public async Task GetTimeRecords()
+    public Task GetTimeRecords()
     {
         if (IsLoading)
         {
-            return;
+            return Task.CompletedTask;
         }
 
         try
@@ -155,7 +157,13 @@ public partial class DashBoardViewModel : BaseViewModel
                 TimeRecords.Clear();
             }
 
-            var sourceList = App.DataService.GetTimeRecords() ?? throw new Exception();
+            var sourceList = App.DataService.GetTimeRecords();
+
+            if (sourceList == null)
+            {
+                _logger.LogError("Failed to retrieve the list of Time Records.");
+                return Task.CompletedTask;
+            }
 
             foreach (var record in sourceList)
             {
@@ -173,15 +181,13 @@ public partial class DashBoardViewModel : BaseViewModel
                 TimeRecords.Add(new GroupedRecords(item.Key, accumulatedTime.ToString(), new List<TimeRecord>(item.Value)));
             }
         }
-        catch (Exception e)
-        {
-            await CurShell.DisplayAlert("Error", "Failed to retrieve the list of Time Records.", "OK");
-        }
         finally
         {
             IsLoading = false;
             IsRefreshing = false;
         }
+
+        return Task.CompletedTask;
     }
 
     [RelayCommand]

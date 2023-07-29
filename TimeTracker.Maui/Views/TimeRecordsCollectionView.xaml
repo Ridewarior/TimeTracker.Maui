@@ -6,84 +6,87 @@
              x:DataType="viewmodel:DashBoardViewModel"
              x:Class="TimeTracker.Maui.Views.TimeRecordsCollectionView">
 
-    <CollectionView ItemsSource="{Binding TimeRecords}"
-                        SelectionMode="None"
-                        IsGrouped="True">
-        <CollectionView.GroupHeaderTemplate>
+    <ListView ItemsSource="{Binding TimeRecords}"
+              SelectionMode="None"
+              IsGroupingEnabled="True"
+              IsPullToRefreshEnabled="True"
+              RefreshCommand="{Binding GetTimeRecordsCommand}"
+              IsRefreshing="{Binding IsRefreshing}">
+        <ListView.GroupHeaderTemplate>
             <DataTemplate x:DataType="models:GroupedRecords">
-                <Grid ColumnDefinitions="100,*"
-                      Margin="0,15,0,0">
-                    <Label Grid.Column="0"
-                           Text="{Binding GroupDate}"
-                           FontAttributes="Bold"
-                           FontSize="16"
-                           HorizontalOptions="Start"/>
-
-                    <!--HorizontalOptions here isn't working correctly for WinUI-->
-                    <Label Grid.Column="1"
-                           Text="{Binding AccumulatedTime}"
-                           FontAttributes="Bold"
-                           FontSize="16"
-                           HorizontalOptions="End"/>
-                </Grid>
+                <ViewCell>
+                    <Grid ColumnDefinitions="100,*"
+                          Margin="5,15,5,0">
+                        <Label Grid.Column="0"
+                               Text="{Binding GroupDate}"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               HorizontalOptions="Start"/>
+                        <Label Grid.Column="1"
+                               Text="{Binding AccumulatedTime}"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               HorizontalOptions="End"/>
+                    </Grid>
+                </ViewCell>
             </DataTemplate>
-        </CollectionView.GroupHeaderTemplate>
-        <CollectionView.ItemTemplate>
+        </ListView.GroupHeaderTemplate>
+        <ListView.ItemTemplate>
             <DataTemplate x:DataType="models:TimeRecord">
-                <Border StrokeShape="RoundRectangle 10,10,10,10"
+                <ViewCell>
+                    <Border StrokeShape="RoundRectangle 10,10,10,10"
                             Padding="30"
                             Margin="5"
                             Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark=Gray}"
                             StrokeThickness="2.8"
                             BackgroundColor="{AppThemeBinding Dark=#1A1A1A}">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DashBoardViewModel}}, Path=GoToRecordDetailsCommand}"
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodel:DashBoardViewModel}}, Path=GoToRecordDetailsCommand}"
                                                   CommandParameter="{Binding RECORD_ID}"/>
-                    </Border.GestureRecognizers>
-                    <Grid ColumnDefinitions="30,*,*,*,*,*">
-                        <HorizontalStackLayout Grid.Column="0"
-                                               IsVisible="{Binding SHOW_RUN_COUNT}">
-                            <Label Text="("
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="30,*,*,*,*,*">
+                            <HorizontalStackLayout Grid.Column="0"
+                                                   IsVisible="{Binding SHOW_RUN_COUNT}">
+                                <Label Text="("
                                    FontAttributes="Bold"/>
-                            <Label Text="{Binding RUN_COUNT}"
+                                <Label Text="{Binding RUN_COUNT}"
                                    FontAttributes="Bold"/>
-                            <Label Text=")"
+                                <Label Text=")"
                                    FontAttributes="Bold"/>
-                        </HorizontalStackLayout>
-                        <Label Grid.Column="1"
+                            </HorizontalStackLayout>
+                            <Label Grid.Column="1"
                                HorizontalOptions="Start"
                                Text="{Binding RECORD_TITLE}"
                                FontAttributes="Bold"/>
-                        <HorizontalStackLayout Grid.Column="2"
-                                               Spacing="5"
-                                               Margin="70,0,0,0">
-                            <Label Text="WI:"
+                            <HorizontalStackLayout Grid.Column="2"
+                                                   Spacing="5"
+                                                   Margin="70,0,0,0">
+                                <Label Text="WI:"
                                    FontAttributes="Bold"/>
-                            <Label Text="{Binding WORKITEM_TITLE}"/>
-                        </HorizontalStackLayout>
-                        <HorizontalStackLayout Grid.Column="3"
+                                <Label Text="{Binding WORKITEM_TITLE}"/>
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Grid.Column="3"
                                                Spacing="5"
                                                Margin="100,0,0,0">
-                            <Label Text="Client:"
+                                <Label Text="Client:"
                                    FontAttributes="Bold"/>
-                            <Label Text="{Binding CLIENT_NAME}"/>
-                        </HorizontalStackLayout>
-                        <HorizontalStackLayout Grid.Column="4"
+                                <Label Text="{Binding CLIENT_NAME}"/>
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Grid.Column="4"
                                                Spacing="5"
                                                Margin="140,0,0,0">
-                            <Label Text="LogID:"
+                                <Label Text="LogID:"
                                    FontAttributes="Bold"/>
-                            <Label Text="{Binding LOG_ID}"/>
-                        </HorizontalStackLayout>
-                        <Label Grid.Column="5"
+                                <Label Text="{Binding LOG_ID}"/>
+                            </HorizontalStackLayout>
+                            <Label Grid.Column="5"
                                    HorizontalOptions="End"
                                    Text="{Binding TIME_ELAPSED}"
                                    FontAttributes="Bold"/>
-                    </Grid>
-                </Border>
+                        </Grid>
+                    </Border>
+                </ViewCell>
             </DataTemplate>
-        </CollectionView.ItemTemplate>
-    </CollectionView>
-
-
+        </ListView.ItemTemplate>
+    </ListView>
 </ContentView>
