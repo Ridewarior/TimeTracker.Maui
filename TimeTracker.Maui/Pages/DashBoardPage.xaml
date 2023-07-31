@@ -6,7 +6,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="TimeTracker.Maui.Pages.DashBoardPage"
              x:DataType="viewmodel:DashBoardViewModel"
-             Title="{Binding PageTitle}">
+             Title="Dashboard">
 
     <toolkit:DockLayout>
         <Border toolkit:DockLayout.DockPosition="Bottom"

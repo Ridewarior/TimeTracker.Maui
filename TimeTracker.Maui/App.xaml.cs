@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Handlers;
+﻿using MetroLog.Maui;
+using Microsoft.Maui.Handlers;
 using TimeTracker.Maui.Services;
 
 namespace TimeTracker.Maui;
@@ -24,6 +25,10 @@ public partial class App
         DataService = dataService;
 		TimerService = timerService;
 		TimeFormat = @"hh\:mm\:ss";
+
+        LogController.InitializeNavigation(
+            page => MainPage!.Navigation.PushModalAsync(page),
+            () => MainPage!.Navigation.PopModalAsync());
     }
 
 #if WINDOWS

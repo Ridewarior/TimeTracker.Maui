@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:fa="clr-namespace:TimeTracker.Maui.Helpers"
+             x:Class="TimeTracker.Maui.Pages.SettingsPage"
+             Title="Settings">
+
+    <ScrollView>
+        <VerticalStackLayout>
+            <Border StrokeThickness="0"
+                    BackgroundColor="{StaticResource Primary}"
+                    Margin="-2,0,-2,10">
+                <Label Text="General"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   Margin="10,15,15,15"></Label>
+            </Border>
+            <HorizontalStackLayout RadioButtonGroup.GroupName="AppTheme"
+                                   RadioButtonGroup.SelectedValue="AppThemeSelection"
+                                   Spacing="20"
+                                   Margin="10,5,0,0">
+                <Label Text="App Theme"
+                   FontSize="15"
+                   Margin="0,7,0,0"/>
+                <RadioButton Content="Auto"></RadioButton>
+                <RadioButton Content="Light"></RadioButton>
+                <RadioButton Content="Dark"></RadioButton>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="20"
+                               Margin="10,20,0,0">
+                <Label Text="Color Theme"
+                   FontSize="15"
+                   Margin="0,10,0,0"/>
+                <Picker>
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Maui</x:String>
+                            <x:String>Blue</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="20"
+                                   Margin="10,20,0,0">
+                <Label Text="Truncated Text"
+                       FontSize="15"
+                       Margin="0,7,0,0"/>
+                <Switch/>
+            </HorizontalStackLayout>
+            <VerticalStackLayout>
+                <HorizontalStackLayout Spacing="20"
+                                     Margin="10,20,0,0">
+                    <Label Text="Major Text Limit:"
+                           FontSize="15"
+                           Margin="0,7,0,0"/>
+                    <Entry Keyboard="Numeric"
+                           Placeholder="Ex: 30"/>
+                    <Label Text="* Sets the character limit for Major text fields (i.e. examples)"
+                           TextColor="DarkGrey"
+                           FontSize="13"
+                           Margin="0,15,0,0"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="20"
+                                       Margin="10,20,0,0">
+                    <Label Text="Minor Text Limit:"
+                           FontSize="15"
+                           Margin="0,7,0,0"/>
+                    <Entry Keyboard="Numeric"
+                           Placeholder="Ex: 22"/>
+                    <Label Text="* Sets the character limit for Minor text fields (i.e. examples)"
+                           TextColor="DarkGrey"
+                           FontSize="13"
+                           Margin="0,15,0,0"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <Border StrokeThickness="0"
+                    BackgroundColor="{StaticResource Primary}"
+                    Margin="-2,30,-2,10">
+                <Label Text="Date and Time"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   Margin="10,15,15,15"></Label>
+            </Border>
+            <HorizontalStackLayout Spacing="20"
+                                   Margin="10,5,0,0">
+                <Label Text="Date Format"
+                       FontSize="15"
+                       Margin="0,10,0,0"/>
+                <Picker>
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>ddd/dd/MMM (Thu 20 Apr)</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="20"
+                                   Margin="10,25,0,0">
+                <Label Text="Duration Format"
+                       FontSize="15"
+                       Margin="0,10,0,0"/>
+                <Picker>
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Standard (0:30:00)</x:String>
+                            <x:String>Decimal (0.5 h)</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout RadioButtonGroup.GroupName="RecordGrouping"
+                                   RadioButtonGroup.SelectedValue="RecordGroupingSelection"
+                                   Spacing="20"
+                                   Margin="10,20,0,0">
+                <Label Text="Records Grouping"
+                       FontSize="15"
+                       Margin="0,10,0,0"/>
+                <RadioButton Content="Day"/>
+                <RadioButton Content="Week"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="20"
+                                   Margin="10,20,0,0">
+                <Label Text="First day of the week"
+                       FontSize="15"
+                       Margin="0,10,0,0"/>
+                <Picker>
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Sunday</x:String>
+                            <x:String>Monday</x:String>
+                            <x:String>Tuesday</x:String>
+                            <x:String>Wednesday</x:String>
+                            <x:String>Thursday</x:String>
+                            <x:String>Friday</x:String>
+                            <x:String>Saturday</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+            </HorizontalStackLayout>
+
+            <Border StrokeThickness="0"
+                    BackgroundColor="{StaticResource Primary}"
+                    Margin="-2,30,-2,10">
+                <Label Text="Storage"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       Margin="10,15,15,15"></Label>
+            </Border>
+            <HorizontalStackLayout Spacing="20"
+                                   Margin="10,5,0,0">
+                <Label Text="Storage Type"
+                       FontSize="15"
+                       Margin="0,10,0,0"/>
+                <Picker>
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>SQLite</x:String>
+                            <x:String>JSON</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="20"
+                                   Margin="10,25,0,0">
+                <Label Text="File Name"
+                       FontSize="15"
+                       Margin="0,10,0,0"/>
+                <Entry Text="TimeTrackerApp"></Entry>
+                <Label Text="* Don't include file extensions"
+                       TextColor="DarkGrey"
+                       FontSize="13"
+                       Margin="0,15,0,0"/>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Spacing="20"
+                                   Margin="10,25,0,0">
+                <Label Text="File Location"
+                       FontSize="15"
+                       Margin="0,10,0,0"/>
+                <Entry Text="C:\Users\YourUser\TimeTrackerApp.db3"></Entry>
+                <Button VerticalOptions="Start"
+                        ContentLayout="Top, -10"
+                        Padding="2,-8,2,2"
+                        HeightRequest="50"
+                        WidthRequest="50">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FAR"
+                                         Glyph="{x:Static fa:FontAwesomeIcons.FolderOpen}"/>
+                    </Button.ImageSource>
+                </Button>
+            </HorizontalStackLayout>
+
+            <Border StrokeThickness="0"
+                    BackgroundColor="{StaticResource Primary}"
+                    Margin="-2,30,-2,10">
+                <Label Text="Other"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       Margin="10,15,15,15"></Label>
+            </Border>
+            <HorizontalStackLayout Spacing="20"
+                                   Margin="10,5,0,0">
+                <Button VerticalOptions="Start"
+                        Text="App Logs"
+                        FontSize="15"
+                        ContentLayout="Top, 0"
+                        Padding="2,0,2,2"
+                        Margin="0,0,0,0"
+                        HeightRequest="60"
+                        WidthRequest="100">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FAR"
+                                         Glyph="{x:Static fa:FontAwesomeIcons.FileCode}"/>
+                    </Button.ImageSource>
+                </Button>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

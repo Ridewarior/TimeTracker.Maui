@@ -51,7 +51,7 @@
         <ListView.ItemTemplate>
             <DataTemplate x:DataType="models:TimeRecord">
                 <ViewCell>
-                    <Border StrokeShape="RoundRectangle 10,10,10,10"
+                    <Border StrokeShape="RoundRectangle 10"
                             Padding="30"
                             Margin="5"
                             Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark=Gray}"

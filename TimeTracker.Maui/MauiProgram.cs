@@ -46,9 +46,11 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<BaseViewModel>();
         builder.Services.AddSingleton<DashBoardViewModel>();
+        builder.Services.AddSingleton<SettingsViewModel>();
         builder.Services.AddTransient<DetailsPageViewModel>();
 
         builder.Services.AddSingleton<DashBoardPage>();
+        builder.Services.AddSingleton<SettingsPage>();
         builder.Services.AddTransient<DetailsPopupPage>();
 
 

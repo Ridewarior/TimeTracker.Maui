@@ -10,9 +10,6 @@ public partial class BaseViewModel : ObservableObject
 {
     public readonly string NewRecordId = Guid.Empty.ToString();
 
-    [ObservableProperty]
-    private string _pageTitle;
-
     [ObservableProperty, NotifyPropertyChangedFor(nameof(IsLoaded))]
     private bool _isLoading;
 

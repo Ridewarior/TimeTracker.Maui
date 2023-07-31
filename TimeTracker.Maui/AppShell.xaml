@@ -4,11 +4,24 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:TimeTracker.Maui.Pages"
-    FlyoutBehavior="Disabled">
+    xmlns:fa="clr-namespace:TimeTracker.Maui.Helpers"
+    FlyoutBehavior="Flyout">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate pages:DashBoardPage}"
-        Route="DashBoardPage" />
+    <FlyoutItem Title="DashBoard">
+        <FlyoutItem.Icon>
+            <FontImageSource FontFamily="FAS"
+                             Glyph="{x:Static fa:FontAwesomeIcons.House}"></FontImageSource>
+        </FlyoutItem.Icon>
+        <ShellContent ContentTemplate="{DataTemplate pages:DashBoardPage}"
+                      Route="DashBoardPage"/>
+    </FlyoutItem>
 
+    <FlyoutItem Title="Settings">
+        <FlyoutItem.Icon>
+            <FontImageSource FontFamily="FAS"
+                             Glyph="{x:Static fa:FontAwesomeIcons.Gear}"></FontImageSource>
+        </FlyoutItem.Icon>
+        <ShellContent ContentTemplate="{DataTemplate pages:SettingsPage}"
+                      Route="SettingsPage"/>
+    </FlyoutItem>
 </Shell>

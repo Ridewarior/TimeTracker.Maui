@@ -52,8 +52,6 @@ public partial class DashBoardViewModel : BaseViewModel
 
     public DashBoardViewModel(ILogger<DashBoardViewModel> logger)
     {
-        PageTitle = "TimeTracker: DashBoard";
-
         _logger = logger;
         MopupInstance.Popped += OnPopupPopped;
         GetTimeRecords().Wait();
