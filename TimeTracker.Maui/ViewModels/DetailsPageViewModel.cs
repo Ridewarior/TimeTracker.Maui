@@ -212,7 +212,7 @@ public partial class DetailsPageViewModel : BaseViewModel
         {
             if (StartingTime > DateTime.Now)
             {
-                await CurShell.DisplayAlert("Error", "Start time cannot be in the future", "OK");
+                await App.AlertService.ShowAlertAsync("Error", "Start time cannot be in the future");
                 StartTimeStamp = _originalStartTime.Date;
                 StartTime = new TimeSpan(_originalStartTime.Hour, _originalStartTime.Minute, _originalStartTime.Second);
             }
@@ -233,7 +233,7 @@ public partial class DetailsPageViewModel : BaseViewModel
     {
         if (StoppingTime < StartingTime)
         {
-            await CurShell.DisplayAlert("Error", "Stopping time cannot be before the Starting time", "OK");
+            await App.AlertService.ShowAlertAsync("Error", "Stopping time cannot be before the Starting time");
             StopTimeStamp = _originalStopTime.Date;
             StopTime = new TimeSpan(_originalStopTime.Hour, _originalStopTime.Minute, _originalStopTime.Second);
             return;
@@ -317,7 +317,7 @@ public partial class DetailsPageViewModel : BaseViewModel
         {
             if (!_recTitleUpdated)
             {
-                var selectedOption = await CurShell.DisplayActionSheet("Update all runs?", "Cancel", null, "All", "Just this");
+                var selectedOption = await App.AlertService.ShowActionSheetAsync("Update All Runs", "Cancel", null, "All", "Just This");
 
                 if (string.IsNullOrWhiteSpace(selectedOption))
                 {
@@ -331,7 +331,7 @@ public partial class DetailsPageViewModel : BaseViewModel
             }
             else
             {
-                var selectedOption = await CurShell.DisplayAlert("Warning", "You must update all previous records when changing the record title", "Continue", "Cancel");
+                var selectedOption = await App.AlertService.ShowConfirmationAsync("Warning", "You must update all previous records when changing the record title");
 
                 if (!selectedOption)
                 {
@@ -348,18 +348,18 @@ public partial class DetailsPageViewModel : BaseViewModel
             {
                 if (App.DataService.UpdateRecord(TimeRecord) == 0)
                 {
-                    await CurShell.DisplayAlert("Error", "An error occurred while trying to update this record, please try again", "OK");
+                    await App.AlertService.ShowAlertAsync("Error", "An error occurred while trying to update this record, please try again");
                     return;
                 }
 
-                await CurShell.DisplayAlert("Success", "Record was updated successfully", "OK");
+                await App.AlertService.ShowAlertAsync("Success", "Record was updated successfully");
                 break;
             }
             case true when updateAll:
             {
                 if (App.DataService.UpdateRecord(TimeRecord) == 0)
                 {
-                    await CurShell.DisplayAlert("Error", "An error occurred while trying to update this record, please try again", "OK");
+                    await App.AlertService.ShowAlertAsync("Error", "An error occurred while trying to update this record, please try again");
                     return;
                 }
 
@@ -544,7 +544,7 @@ public partial class DetailsPageViewModel : BaseViewModel
             {
                 StartBtnText = CreateRecordText;
                 EnableDisableDateTimeTxt = DisableDateTimeText;
-                await CurShell.DisplayAlert("Setting a Stop Time", "Setting the stop time creates a new record using the time between those dates", "OK");
+                await App.AlertService.ShowAlertAsync("Setting a Stop Time", "Setting the stop time creates a new record using the time between those dates");
                 break;
             }
             case false:
@@ -566,13 +566,13 @@ public partial class DetailsPageViewModel : BaseViewModel
             {
                 if (StartingTime > _currentTime)
                 {
-                    await CurShell.DisplayAlert("Error", "Cannot start timer ahead of the current time", "OK");
+                    await App.AlertService.ShowAlertAsync("Error", "Cannot start timer ahead of the current time");
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(TimeRecord.RECORD_TITLE))
                 {
-                    await CurShell.DisplayAlert("Error", "A Record Title is required", "OK");
+                    await App.AlertService.ShowAlertAsync("Error", "A Record Title is required");
                     return;
                 }
 
@@ -592,13 +592,13 @@ public partial class DetailsPageViewModel : BaseViewModel
             {
                 if (StoppingTime <= StartingTime)
                 {
-                    await CurShell.DisplayAlert("Error", "The Stop time cannot be the same or before the Start time.", "OK");
+                    await App.AlertService.ShowAlertAsync("Error", "The Stop time cannot be the same or before the Start time.");
                     return;
                 }
                 
                 if (string.IsNullOrWhiteSpace(TimeRecord.RECORD_TITLE))
                 {
-                    await CurShell.DisplayAlert("Error", "A Record Title is required", "OK");
+                    await App.AlertService.ShowAlertAsync("Error", "A Record Title is required");
                     return;
                 }
                 
@@ -607,7 +607,7 @@ public partial class DetailsPageViewModel : BaseViewModel
                     break;
                 }
                 
-                await CurShell.DisplayAlert("Error", "An error occurred while creating the Time Record, Please try again", "OK");
+                await App.AlertService.ShowAlertAsync("Error", "An error occurred while creating the Time Record, Please try again");
                 break;
             }
             case true when TimeRecord.REC_TIMER_RUNNING:
@@ -668,12 +668,12 @@ public partial class DetailsPageViewModel : BaseViewModel
         {
             if (StopAndSave())
             {
-                await CurShell.DisplayAlert("Success", "Record was saved successfully", "OK");
+                await App.AlertService.ShowAlertAsync("Success", "Record was saved successfully");
                 ResetRunningRecord();
             }
             else
             {
-                await CurShell.DisplayAlert("Error", "An error occurred while trying to stop and save this record, please try again", "OK");
+                await App.AlertService.ShowAlertAsync("Error", "An error occurred while trying to stop and save this record, please try again");
                 return;
             }
         }
@@ -685,7 +685,7 @@ public partial class DetailsPageViewModel : BaseViewModel
     [RelayCommand]
     public async Task DeleteRecord()
     {
-        var confirm = await CurShell.DisplayAlert("Warning", "Are you sure you want to delete this record?", "Delete", "Cancel");
+        var confirm = await App.AlertService.ShowConfirmationAsync("Warning", "Are you sure you want to delete this record?", "Delete");
         
         if (confirm)
         {
@@ -693,11 +693,11 @@ public partial class DetailsPageViewModel : BaseViewModel
 
             if (result != 0)
             {
-                await CurShell.DisplayAlert("Success", "Record was deleted successfully", "OK");
+                await App.AlertService.ShowAlertAsync("Success", "Record was deleted successfully");
             }
             else
             {
-                await CurShell.DisplayAlert("Error", "An error occurred while trying to delete this record, please try again.", "OK");
+                await App.AlertService.ShowAlertAsync("Error", "An error occurred while trying to delete this record, please try again.");
                 return;
             }
 

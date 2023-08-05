@@ -7,25 +7,26 @@ namespace TimeTracker.Maui;
 public partial class App
 {
     private const int WindowWidth = 1250;
-
     private const int WindowHeight = 850;
 
-	// Eventually create an interface for the DataServices
-	public static SQLiteDataService DataService { get; private set; }
-	
-    public static TimerService TimerService { get; private set; }
-    
+    public static IServiceProvider Services;
+    public static SQLiteDataService DataService; // will use interface soon
+    public static IAlertService AlertService;
+    public static TimerService TimerService;
+
     // Eventually this should be read in from preferences
     public static string TimeFormat { get; private set; }
-	public App(SQLiteDataService dataService, TimerService timerService)
+	public App(IServiceProvider provider)
 	{
 		InitializeComponent();
 
-        MainPage = new AppShell();
-        DataService = dataService;
-		TimerService = timerService;
-		TimeFormat = @"hh\:mm\:ss";
+        Services = provider;
+        DataService = Services.GetService<SQLiteDataService>();
+        TimerService = Services.GetService<TimerService>();
+        AlertService = Services.GetService<IAlertService>();
+		TimeFormat = @"hh\:mm\:ss"; // should be moved to the SettingsService
 
+        MainPage = new AppShell();
         LogController.InitializeNavigation(
             page => MainPage!.Navigation.PushModalAsync(page),
             () => MainPage!.Navigation.PopModalAsync());

@@ -41,6 +41,7 @@ public static class MauiProgram
         });
 #endif
 
+        builder.Services.AddSingleton<IAlertService, AlertService>();
         builder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<SQLiteDataService>(s, dbPath));
 		builder.Services.AddSingleton<TimerService>();
 

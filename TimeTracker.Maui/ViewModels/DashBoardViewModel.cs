@@ -221,13 +221,13 @@ public partial class DashBoardViewModel : BaseViewModel
     {
         if (string.IsNullOrEmpty(recordId))
         {
-            await CurShell.DisplayAlert("Error", "Invalid record, please try again", "OK");
+            await App.AlertService.ShowAlertAsync("Error", "Invalid record, please try again");
             return;
         }
 
         if (IsRunning)
         {
-            await CurShell.DisplayAlert("Warning", "A timer is already running", "OK");
+            await App.AlertService.ShowAlertAsync("Warning", "A timer is already running");
             return;
         }
 
@@ -272,7 +272,7 @@ public partial class DashBoardViewModel : BaseViewModel
     {
         if (string.IsNullOrEmpty(recordId))
         {
-            await CurShell.DisplayAlert("Error", "Invalid record, please try again", "OK");
+            await App.AlertService.ShowAlertAsync("Error", "Invalid record, please try again");
             return;
         }
 
@@ -281,11 +281,11 @@ public partial class DashBoardViewModel : BaseViewModel
 
         if (result == 0)
         {
-            await CurShell.DisplayAlert("Error", "An error occurred while trying to delete this record, please try again", "OK");
+            await App.AlertService.ShowAlertAsync("Error", "An error occurred while trying to delete this record, please try again");
         }
         else
         {
-            await CurShell.DisplayAlert("Success", "Record was deleted successfully", "OK");
+            await App.AlertService.ShowAlertAsync("Success", "Record was deleted successfully");
             GetTimeRecords().Wait();
         }
     }
@@ -308,13 +308,13 @@ public partial class DashBoardViewModel : BaseViewModel
     {
         if (StopAndSave())
         {
-            await CurShell.DisplayAlert("Success", "Record was saved successfully", "OK");
+            await App.AlertService.ShowAlertAsync("Success", "Record was saved successfully");
             ResetRunningRecord();
             GetTimeRecords().Wait();
         }
         else
         {
-            await CurShell.DisplayAlert("Error", "An error occurred while trying to stop and save this record, please try again", "OK");
+            await App.AlertService.ShowAlertAsync("Error", "An error occurred while trying to stop and save this record, please try again");
         }
 
         UpdateControls();
