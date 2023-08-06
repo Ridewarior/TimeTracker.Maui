@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Mopups.Services;
 using System.Globalization;
 using TimeTracker.Maui.Enums;
 using TimeTracker.Maui.Models;
@@ -22,6 +23,12 @@ public partial class DetailsPageViewModel : BaseViewModel
 
     [ObservableProperty]
     private TimeSpan _stopTime;
+
+    [ObservableProperty]
+    private DateTime _startTimeStamp;
+
+    [ObservableProperty]
+    private DateTime _stopTimeStamp;
 
     [ObservableProperty]
     private bool _stopDateTimeChecked;
@@ -300,7 +307,7 @@ public partial class DetailsPageViewModel : BaseViewModel
 
     private void ResetUpdateProperties()
     {
-        RecordModified = false;
+        UnsavedChanges = false;
         _recTitleUpdated = false;
         _startTimeUpdated = false;
         _stopTimeUpdated = false;
@@ -448,7 +455,7 @@ public partial class DetailsPageViewModel : BaseViewModel
             {
                 if (TimeRecord.RECORD_TITLE != _originalTimeRecord.RECORD_TITLE)
                 {
-                    RecordModified = true;
+                    UnsavedChanges = true;
                     _recTitleUpdated = true;
                 }
                 break;
@@ -462,7 +469,7 @@ public partial class DetailsPageViewModel : BaseViewModel
 
                     if (StartingTime != strippedStartTime)
                     {
-                        RecordModified = true;
+                        UnsavedChanges = true;
                         _startTimeUpdated = true;
                         await AdjustLiveTimer();
                     }
@@ -478,7 +485,7 @@ public partial class DetailsPageViewModel : BaseViewModel
 
                     if (StartingTime != strippedStartTime)
                     {
-                        RecordModified = true;
+                        UnsavedChanges = true;
                         _startTimeUpdated = true;
                         await AdjustTimer();
                     }
@@ -494,7 +501,7 @@ public partial class DetailsPageViewModel : BaseViewModel
 
                     if (StoppingTime != strippedStopTime)
                     {
-                        RecordModified = true;
+                        UnsavedChanges = true;
                         _stopTimeUpdated = true;
                         await AdjustTimer();
                     }
@@ -505,7 +512,7 @@ public partial class DetailsPageViewModel : BaseViewModel
             {
                 if (TimeRecord.WORKITEM_TITLE != _originalTimeRecord.WORKITEM_TITLE)
                 {
-                    RecordModified = true;
+                    UnsavedChanges = true;
                     _wiTitleUpdated = true;
                 }
                 break;
@@ -514,7 +521,7 @@ public partial class DetailsPageViewModel : BaseViewModel
             {
                 if (TimeRecord.CLIENT_NAME != _originalTimeRecord.CLIENT_NAME)
                 {
-                    RecordModified = true;
+                    UnsavedChanges = true;
                     _clientNameUpdated = true;
                 }
                 break;
@@ -523,7 +530,7 @@ public partial class DetailsPageViewModel : BaseViewModel
             {
                 if (TimeRecord.LOG_ID != _originalTimeRecord.LOG_ID)
                 {
-                    RecordModified = true;
+                    UnsavedChanges = true;
                     _logIdUpdated = true;
                 }
                 break;
@@ -562,7 +569,7 @@ public partial class DetailsPageViewModel : BaseViewModel
     {
         switch (IsNewRec)
         {
-            case true when !StopDateTimeChecked && !RecordModified:
+            case true when !StopDateTimeChecked && !UnsavedChanges:
             {
                 if (StartingTime > _currentTime)
                 {
@@ -615,7 +622,7 @@ public partial class DetailsPageViewModel : BaseViewModel
                 await UpdateTimeRecords(false);
                 break;
             }
-            case false when RecordModified:
+            case false when UnsavedChanges:
             {
                 await UpdateTimeRecords(true);
                 break;
@@ -657,8 +664,8 @@ public partial class DetailsPageViewModel : BaseViewModel
             }
         }
 
-        RecordModified = false;
-        await MopupInstance.PopAsync();
+        UnsavedChanges = false;
+        await MopupService.Instance.PopAsync();
     }
 
     [RelayCommand]
@@ -678,8 +685,8 @@ public partial class DetailsPageViewModel : BaseViewModel
             }
         }
 
-        RecordModified = false;
-        await MopupInstance.PopAsync();
+        UnsavedChanges = false;
+        await MopupService.Instance.PopAsync();
     }
 
     [RelayCommand]
@@ -701,8 +708,8 @@ public partial class DetailsPageViewModel : BaseViewModel
                 return;
             }
 
-            RecordModified = false;
-            await MopupInstance.PopAsync();
+            UnsavedChanges = false;
+            await MopupService.Instance.PopAsync();
         }
 
     }

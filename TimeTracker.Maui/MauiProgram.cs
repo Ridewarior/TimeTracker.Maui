@@ -14,7 +14,6 @@ public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
     {
-		var dbPath = Path.Combine(FileSystem.AppDataDirectory, "TimeTrackerApp.db3");
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
@@ -41,9 +40,15 @@ public static class MauiProgram
         });
 #endif
 
-        builder.Services.AddSingleton<IAlertService, AlertService>();
+        //builder.Services.AddSingleton<ISettingsService, SettingsService>();
+
+        // Once other data storage types are implemented the settings service can be called here to check for which IDataService class should be used. DB path will be different based on that.
+        var dbPath = Path.Combine(FileSystem.AppDataDirectory, "TimeTrackerApp.db3");
+        //builder.Services.AddSingleton<IDataService, SQLiteDataService>(s => ActivatorUtilities.CreateInstance<SQLiteDataService>(s, dbPath));
         builder.Services.AddSingleton(s => ActivatorUtilities.CreateInstance<SQLiteDataService>(s, dbPath));
-		builder.Services.AddSingleton<TimerService>();
+
+        builder.Services.AddSingleton<IAlertService, AlertService>();
+        builder.Services.AddSingleton<TimerService>();
 
         builder.Services.AddSingleton<BaseViewModel>();
         builder.Services.AddSingleton<DashBoardViewModel>();

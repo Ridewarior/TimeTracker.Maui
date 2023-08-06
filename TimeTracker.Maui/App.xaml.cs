@@ -9,10 +9,10 @@ public partial class App
     private const int WindowWidth = 1250;
     private const int WindowHeight = 850;
 
-    public static IServiceProvider Services;
-    public static SQLiteDataService DataService; // will use interface soon
-    public static IAlertService AlertService;
-    public static TimerService TimerService;
+    public static IServiceProvider Services { get; private set; }
+    public static SQLiteDataService DataService { get; private set; }
+    public static IAlertService AlertService { get; private set; }
+    public static TimerService TimerService { get; private set; }
 
     // Eventually this should be read in from preferences
     public static string TimeFormat { get; private set; }

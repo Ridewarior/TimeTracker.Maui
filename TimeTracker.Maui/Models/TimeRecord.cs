@@ -64,7 +64,7 @@ public class TimeRecord
     public bool REC_TIMER_RUNNING { get; set; }
 
     /// <summary>
-    /// 
+    /// True if the record has a run count greater than 1
     /// </summary>
     [Ignore]
     public bool SHOW_RUN_COUNT => RUN_COUNT > 1;

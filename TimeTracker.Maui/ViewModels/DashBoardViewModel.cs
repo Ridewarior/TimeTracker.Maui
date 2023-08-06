@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Mopups.Events;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using Mopups.Services;
 using TimeTracker.Maui.Models;
 using TimeTracker.Maui.Pages;
 
@@ -13,9 +14,9 @@ public partial class DashBoardViewModel : BaseViewModel
 {
     private readonly ILogger<DashBoardViewModel> _logger;
 
-    private const int MinorTextMaxLength = 22;
+    private const int MinorTextMaxLength = 22; // should come from preferences
 
-    private const int MajorTextMaxLength = 30;
+    private const int MajorTextMaxLength = 30; // should come from preferences
 
     private const string StartTimerText = "Start Timer";
 
@@ -53,7 +54,7 @@ public partial class DashBoardViewModel : BaseViewModel
     public DashBoardViewModel(ILogger<DashBoardViewModel> logger)
     {
         _logger = logger;
-        MopupInstance.Popped += OnPopupPopped;
+        MopupService.Instance.Popped += OnPopupPopped;
         GetTimeRecords().Wait();
         UpdateControls();
     }
@@ -67,9 +68,9 @@ public partial class DashBoardViewModel : BaseViewModel
             BtnMainText = StopTimerText;
             BackgroundColor = Color.FromArgb("#ff8c00");
             IsRunning = true;
-            RecordTitle = TruncateLongText(RunningRecord.RECORD_TITLE);
-            WorkItemTitle = TruncateLongText(RunningRecord.WORKITEM_TITLE);
-            ClientName = TruncateLongText(RunningRecord.CLIENT_NAME);
+            RecordTitle = TruncateLongText(RunningRecord.RECORD_TITLE, MajorTextMaxLength);
+            WorkItemTitle = TruncateLongText(RunningRecord.WORKITEM_TITLE, MinorTextMaxLength);
+            ClientName = TruncateLongText(RunningRecord.CLIENT_NAME, MinorTextMaxLength);
             LogId = RunningRecord.LOG_ID;
 
             if (RunningRecord.RUN_COUNT > 1)
@@ -112,11 +113,11 @@ public partial class DashBoardViewModel : BaseViewModel
         }
     }
 
-    private static string TruncateLongText(string selectedText)
+    private static string TruncateLongText(string selectedText, int characterLimit)
     {
-        if (selectedText?.Length > MinorTextMaxLength)
+        if (selectedText?.Length > characterLimit)
         {
-            return selectedText[..MinorTextMaxLength].TrimEnd() + "...";
+            return selectedText[..characterLimit].TrimEnd() + "...";
         }
 
         return selectedText;
@@ -132,7 +133,7 @@ public partial class DashBoardViewModel : BaseViewModel
             App.TimerService.StopTimer();
         }
 
-        if (RecordModified)
+        if (UnsavedChanges)
         {
             App.TimerService.ResyncTimers();
         }
@@ -147,7 +148,7 @@ public partial class DashBoardViewModel : BaseViewModel
     {
         if (IsLoading)
         {
-            return Task.CompletedTask;
+            return Task.FromCanceled(CancellationToken.None);
         }
 
         try
@@ -164,7 +165,7 @@ public partial class DashBoardViewModel : BaseViewModel
             if (sourceList == null)
             {
                 _logger.LogError("Failed to retrieve the list of Time Records.");
-                return Task.CompletedTask;
+                return Task.FromCanceled(CancellationToken.None);
             }
 
             foreach (var record in sourceList)
@@ -200,7 +201,7 @@ public partial class DashBoardViewModel : BaseViewModel
             RECORD_ID = NewRecordId
         };
 
-        await MopupInstance.PushAsync(new DetailsPopupPage(new DetailsPageViewModel(newRecord)));
+        await MopupService.Instance.PushAsync(new DetailsPopupPage(new DetailsPageViewModel(newRecord)));
     }
 
     [RelayCommand]
@@ -276,18 +277,16 @@ public partial class DashBoardViewModel : BaseViewModel
             return;
         }
 
-        var record = App.DataService.GetTimeRecord(recordId);
-        var result = App.DataService.DeleteRecord(record.RECORD_ID);
+        var result = App.DataService.DeleteRecord(recordId);
 
         if (result == 0)
         {
             await App.AlertService.ShowAlertAsync("Error", "An error occurred while trying to delete this record, please try again");
+            return;
         }
-        else
-        {
-            await App.AlertService.ShowAlertAsync("Success", "Record was deleted successfully");
-            GetTimeRecords().Wait();
-        }
+
+        await App.AlertService.ShowAlertAsync("Success", "Record was deleted successfully");
+        GetTimeRecords().Wait();
     }
 
     [RelayCommand]
@@ -300,7 +299,7 @@ public partial class DashBoardViewModel : BaseViewModel
 
         SelectedRecord = null!;
 
-        await MopupInstance.PushAsync(new DetailsPopupPage(new DetailsPageViewModel(record)));
+        await MopupService.Instance.PushAsync(new DetailsPopupPage(new DetailsPageViewModel(record)));
     }
 
     [RelayCommand]

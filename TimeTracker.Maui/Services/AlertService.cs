@@ -63,6 +63,7 @@ public class AlertService : IAlertService
     /// </summary>
     /// <param name="title">Title of the alert</param>
     /// <param name="message">Alert body</param>
+    /// <param name="callback">Action to perform afterwards</param>
     /// <param name="accept">Accept button text</param>
     /// <param name="cancel">Cancel button text</param>
     /// <returns>The user's choice as a Boolean value</returns>
@@ -81,6 +82,7 @@ public class AlertService : IAlertService
     /// Displays an alert box to the user with multiple options to select
     /// </summary>
     /// <param name="title">Title of the alert</param>
+    /// <param name="callback">Action to perform afterwards</param>
     /// <param name="cancel">Cancel button text</param>
     /// <param name="destruction">Destruct button text</param>
     /// <param name="buttons">Labels for inputted options</param>

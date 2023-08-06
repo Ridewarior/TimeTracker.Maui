@@ -140,6 +140,7 @@
                 </Picker>
             </HorizontalStackLayout>
 
+            <!-- Pushing these additional storage settings off until a later release -->
             <Border StrokeThickness="0"
                     BackgroundColor="{StaticResource Primary}"
                     Margin="-2,30,-2,10">
@@ -153,7 +154,7 @@
                 <Label Text="Storage Type"
                        FontSize="15"
                        Margin="0,10,0,0"/>
-                <Picker>
+                <Picker IsEnabled="False">
                     <Picker.ItemsSource>
                         <x:Array Type="{x:Type x:String}">
                             <x:String>SQLite</x:String>
@@ -167,7 +168,7 @@
                 <Label Text="File Name"
                        FontSize="15"
                        Margin="0,10,0,0"/>
-                <Entry Text="TimeTrackerApp"></Entry>
+                <Entry Text="TimeTrackerApp" IsEnabled="False"/>
                 <Label Text="* Don't include file extensions"
                        TextColor="DarkGrey"
                        FontSize="13"
@@ -178,12 +179,13 @@
                 <Label Text="File Location"
                        FontSize="15"
                        Margin="0,10,0,0"/>
-                <Entry Text="C:\Users\YourUser\TimeTrackerApp.db3"></Entry>
+                <Entry Text="C:\Users\YourUser\TimeTrackerApp.db3" IsEnabled="False"/>
                 <Button VerticalOptions="Start"
                         ContentLayout="Top, -10"
                         Padding="2,-8,2,2"
                         HeightRequest="50"
-                        WidthRequest="50">
+                        WidthRequest="50"
+                        IsEnabled="False">
                     <Button.ImageSource>
                         <FontImageSource FontFamily="FAR"
                                          Glyph="{x:Static fa:FontAwesomeIcons.FolderOpen}"/>

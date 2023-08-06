@@ -16,13 +16,7 @@ public partial class BaseViewModel : ObservableObject
     [ObservableProperty]
     private bool _isRefreshing;
 
-    [ObservableProperty]
-    private DateTime _startTimeStamp;
-
-    [ObservableProperty]
-    private DateTime _stopTimeStamp;
-    
-    [ObservableProperty]
+    [ObservableProperty] 
     private string _timeElapsed;
 
     [ObservableProperty]
@@ -30,15 +24,11 @@ public partial class BaseViewModel : ObservableObject
 
     public static TimeRecord RunningRecord { get; set; } = new();
 
+    public static bool UnsavedChanges { get; set; }
+
     public bool IsLoaded => !IsLoading;
 
     public static bool TimerRunning => App.TimerService.Running;
-
-    protected readonly Shell CurShell = Shell.Current;
-
-    public IPopupNavigation MopupInstance = MopupService.Instance;
-
-    public static bool RecordModified;
 
     public BaseViewModel()
     {
